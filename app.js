@@ -123,7 +123,11 @@ function showSuggestions(list) {
     const div = document.createElement('div');
     div.className = 'suggestion-item';
     const label = [item.name, item.state, item.country].filter(Boolean).join(', ');
-    div.innerHTML = `<span>📍</span>${label}`;
+    const pin = document.createElement('span');
+    pin.textContent = '📍';
+    const name = document.createElement('span');
+    name.textContent = label;
+    div.append(pin, name);
     div.addEventListener('click', () => {
       document.getElementById('searchInput').value = item.name;
       closeSuggestions();
