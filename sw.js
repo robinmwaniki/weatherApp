@@ -1,3 +1,4 @@
+importScripts('./feature-utils.js');
 const CACHE_NAME = 'skyline-shell-v1';
 const CORE_ASSETS = [
   './', './index.html', './style.css', './app.js', './feature-utils.js',
@@ -26,7 +27,7 @@ self.addEventListener('fetch', event => {
   if (request.method !== 'GET') return;
   const url = new URL(request.url);
   // OpenWeatherMap and all other cross-origin API requests are deliberately network-only.
-  if (url.origin !== self.location.origin) return;
+  if (!self.SkylineUtils.isSameOriginAsset(request.url, self.location.origin)) return;
   if (request.mode === 'navigate') {
     event.respondWith((async () => {
       try {
