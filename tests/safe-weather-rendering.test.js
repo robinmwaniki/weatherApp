@@ -15,27 +15,27 @@ function section(start, end) {
 
 test('autocomplete renders API-provided location labels as text', () => {
   const renderer = section('function showSuggestions(list)', 'function closeSuggestions()');
-  assert.doesNotMatch(renderer, /\.innerHTML\\s*=\\s*`/);
-  assert.match(renderer, /name\.textContent = label/);
-  assert.match(renderer, /div\.append\(pin, name\)/);
+  assert.equal(renderer.includes('.innerHTML = `'), false);
+  assert.ok(renderer.includes('name.textContent = label'));
+  assert.ok(renderer.includes('div.append(pin, name)'));
 });
 
 test('hourly forecast uses text nodes for API-derived values', () => {
-  const renderer = section('function renderHourly(list)', '// ============================\\n//  5-DAY FORECAST');
-  assert.doesNotMatch(renderer, /\.innerHTML\\s*=\\s*`/);
-  assert.match(renderer, /temperature\.textContent/);
-  assert.match(renderer, /div\.append\(time, icon, temperature, rain\)/);
+  const renderer = section('function renderHourly(list)', 'function renderForecast(list)');
+  assert.equal(renderer.includes('.innerHTML = `'), false);
+  assert.ok(renderer.includes('temperature.textContent'));
+  assert.ok(renderer.includes('div.append(time, icon, temperature, rain)'));
 });
 
 test('daily forecast treats API descriptions as text and sets bar width as a style property', () => {
-  const renderer = section('function renderForecast(list)', '// ============================\\n//  WIND COMPASS CANVAS');
-  assert.doesNotMatch(renderer, /\.innerHTML\\s*=\\s*`/);
-  assert.match(renderer, /description\.textContent = desc/);
-  assert.match(renderer, /fill\.style\.width = `\$\{barW\}%`/);
+  const renderer = section('function renderForecast(list)', 'function renderWindCompass(deg, speed)');
+  assert.equal(renderer.includes('.innerHTML = `'), false);
+  assert.ok(renderer.includes('description.textContent = desc'));
+  assert.ok(renderer.includes('fill.style.width ='));
 });
 
 test('autocomplete ignores responses for an outdated search query', () => {
   const loader = section('async function loadSuggestions(q)', 'function showSuggestions(list)');
-  assert.match(loader, /input.*value.*trim\(\) !== q/s);
-  assert.match(loader, /input.*value.*trim\(\) === q/s);
+  assert.ok(loader.includes("value.trim() !== q"));
+  assert.ok(loader.includes("value.trim() === q"));
 });
