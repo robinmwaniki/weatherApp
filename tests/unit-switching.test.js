@@ -14,6 +14,9 @@ function createAppContext(requestJson = async () => { throw new Error('mock weat
     if (!elements.has(id)) {
       elements.set(id, {
         style: {},
+        width: 340,
+        height: 130,
+        getContext() { return { clearRect() {}, beginPath() {}, arc() {}, stroke() {}, moveTo() {}, lineTo() {} }; },
         textContent: '',
         classList: { toggle() {}, add() {}, remove() {} }
       });
@@ -141,4 +144,20 @@ test('visibility formatting follows the selected distance units', () => {
   assert.equal(context.formatVisibility(1609.344), '1.0 mi');
   assert.equal(context.formatVisibility(0), '0.0 mi');
   assert.equal(context.formatVisibility(null), '—');
+});
+
+
+test('sun arc displays unavailable state instead of invalid midnight values', () => {
+  const { context } = createAppContext();
+  context.renderSunArc(0, 0, Date.now() / 1000, '', '');
+  assert.equal(context.document.getElementById('sunriseTime').textContent, '🌅 —');
+  assert.equal(context.document.getElementById('sunsetTime').textContent, '🌇 —');
+  assert.equal(context.document.getElementById('sunNow').textContent, 'Sun times unavailable');
+});
+
+test('daylight icon falls back to provider is_day when sun times are missing', () => {
+  const { context } = createAppContext();
+  assert.equal(context.isDaylight({ dt: 100, sys: { sunrise: 0, sunset: 0 }, is_day: 1 }), true);
+  assert.equal(context.isDaylight({ dt: 100, sys: { sunrise: 0, sunset: 0 }, is_day: 0 }), false);
+  assert.equal(context.isDaylight({ dt: 100, sys: { sunrise: 50, sunset: 150 }, is_day: 0 }), true);
 });
