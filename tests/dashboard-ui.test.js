@@ -7,13 +7,14 @@ const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
 const css = fs.readFileSync(path.join(__dirname, '..', 'style.css'), 'utf8');
 const ui = fs.readFileSync(path.join(__dirname, '..', 'features', 'dashboard-ui.js'), 'utf8');
 
-test('renders sidebar navigation and points to existing dashboard sections', () => {
+test('renders sidebar navigation with dedicated page routes', () => {
   for (const id of ['appSidebar', 'mainContent', 'currentCard', 'hourlyForecast', 'fiveDayForecast', 'featurePanels']) {
     assert.ok(html.includes('id="' + id + '"'), 'Missing navigation target: ' + id);
   }
-  assert.match(html, /class="sidebar-link active" href="#mainContent"/);
-  assert.match(html, /href="#hourlyForecast"/);
-  assert.match(html, /href="#fiveDayForecast"/);
+  for (const page of ['overview', 'current', 'hourly', 'forecast', 'saved', 'history', 'compare', 'alerts', 'share', 'notifications', 'install', 'settings']) {
+    assert.match(html, new RegExp('data-page-link="' + page + '"'));
+    assert.match(html, new RegExp('href="\\?page=' + page + '"'));
+  }
 });
 
 test('renders compact header actions with accessible labels', () => {

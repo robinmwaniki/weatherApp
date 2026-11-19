@@ -1,11 +1,11 @@
 importScripts('./feature-utils.js');
-const CACHE_NAME = 'skyline-shell-v2';
+const CACHE_NAME = 'skyline-shell-v3';
 const CORE_ASSETS = [
   './', './index.html', './style.css', './app.js', './weather-api.js', './feature-utils.js',
   './features/favourites.js', './features/recent-history.js',
   './features/city-comparison.js', './features/weather-alerts.js',
   './features/settings.js', './features/share-report.js',
-  './features/pwa.js', './features/notifications.js', './manifest.webmanifest', './offline.html',
+  './features/pwa.js', './features/notifications.js', './features/dashboard-ui.js', './features/page-router.js', './manifest.webmanifest', './offline.html',
   './assets/icon-192.svg', './assets/icon-512.svg'
 ];
 self.addEventListener('install', event => {

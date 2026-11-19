@@ -45,19 +45,14 @@
 
     <aside class="sidebar" id="appSidebar" aria-label="Main navigation">
       <div class="sidebar-caption">WORKSPACE</div>
-      <a class="sidebar-link" data-page-link="overview" href="?page=overview"><span>⌂</span> Overview</a>
-      <a class="sidebar-link" data-page-link="current" href="?page=current"><span>◉</span> Current weather</a>
-      <a class="sidebar-link" data-page-link="hourly" href="?page=hourly"><span>◷</span> Hourly forecast</a>
-      <a class="sidebar-link" data-page-link="forecast" href="?page=forecast"><span>▤</span> 5-day forecast</a>
+      <a class="sidebar-link active" href="#mainContent"><span>⌂</span> Overview</a>
+      <a class="sidebar-link" href="#currentCard"><span>◉</span> Current weather</a>
+      <a class="sidebar-link" href="#hourlyForecast"><span>◷</span> Hourly forecast</a>
+      <a class="sidebar-link" href="#fiveDayForecast"><span>▤</span> 5-day forecast</a>
       <div class="sidebar-caption sidebar-spaced">PERSONAL</div>
-      <a class="sidebar-link" data-page-link="saved" href="?page=saved"><span>♡</span> Saved places</a>
-      <a class="sidebar-link" data-page-link="history" href="?page=history"><span>◷</span> Recent searches</a>
-      <a class="sidebar-link" data-page-link="compare" href="?page=compare"><span>⇄</span> Compare cities</a>
-      <a class="sidebar-link" data-page-link="alerts" href="?page=alerts"><span>⚑</span> Weather advisories</a>
-      <a class="sidebar-link" data-page-link="share" href="?page=share"><span>↗</span> Share weather</a>
-      <a class="sidebar-link" data-page-link="notifications" href="?page=notifications"><span>♧</span> Notifications</a>
-      <a class="sidebar-link" data-page-link="install" href="?page=install"><span>↓</span> Install app</a>
-      <a class="sidebar-link" id="sidebarSettings" data-page-link="settings" href="?page=settings"><span>⚙</span> Preferences</a>
+      <a class="sidebar-link" href="#featurePanels"><span>♡</span> Your tools & alerts</a>
+      <button class="sidebar-link sidebar-settings" id="sidebarSettings" type="button"><span>⚙</span> Preferences</button>
+      <div class="sidebar-footer"><span class="sidebar-status-dot"></span> Open-Meteo connected</div>
     </aside>
 
     <!-- Search bar -->
@@ -233,7 +228,9 @@
       </div>
     </main>
 
-    
+    <footer class="footer">
+      <span>Weather data by <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> · Location data by <a href="https://www.geonames.org/" target="_blank" rel="noopener">GeoNames</a> · Built By Robin😎</span>
+    </footer>
   </div>
 
   <script src="weather-api.js"></script>
@@ -247,7 +244,6 @@
   <script src="features/pwa.js"></script>
   <script src="features/notifications.js"></script>
   <script src="features/dashboard-ui.js"></script>
-  <script src="features/page-router.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

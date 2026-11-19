@@ -14,7 +14,7 @@ test('uses relative paths so the project site works below /weatherApp/', () => {
     'features/settings.js', 'features/favourites.js',
     'features/recent-history.js', 'features/city-comparison.js',
     'features/weather-alerts.js', 'features/share-report.js',
-    'features/pwa.js', 'features/notifications.js'
+    'features/pwa.js', 'features/notifications.js', 'features/dashboard-ui.js', 'features/page-router.js'
   ];
 
   assert.doesNotMatch(html, /(?:src|href)=["']\/(?!\/)/i);
