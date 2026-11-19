@@ -60,6 +60,19 @@ function formatVisibility(meters) {
 }
 
 // ---- Dew point formula ----
+function formatLocationTime(timestamp, timezone, options = {}) {
+  const date = new Date(Number(timestamp) * 1000);
+  if (!Number.isFinite(date.getTime())) return '—';
+  const formatOptions = Object.assign({}, options);
+  if (timezone) formatOptions.timeZone = timezone;
+  try {
+    return new Intl.DateTimeFormat('en-US', formatOptions).format(date);
+  } catch {
+    delete formatOptions.timeZone;
+    return new Intl.DateTimeFormat('en-US', formatOptions).format(date);
+  }
+}
+
 function isDaylight(cur) {
   const sunrise = Number(cur && cur.sys && cur.sys.sunrise);
   const sunset = Number(cur && cur.sys && cur.sys.sunset);
@@ -261,12 +274,11 @@ function renderAll(cur, fore, recordHistory = false) {
   hideLoading();
 
   const isDay = isDaylight(cur);
-  const tempC = cur.main.temp - (unit === 'imperial' ? 32/1.8 : 0); // approx for dewpoint
 
   // Main card
   document.getElementById('cityName').textContent = cur.name;
   document.getElementById('cityMeta').textContent =
-    `${cur.sys.country ? cur.sys.country + ' · ' : ''}${new Date().toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' })} · ${cur.coord.lat.toFixed(2)}°, ${cur.coord.lon.toFixed(2)}°`;
+    `${cur.sys.country ? cur.sys.country + ' · ' : ''}${formatLocationTime(cur.dt, cur.timezone, { weekday:'long', month:'long', day:'numeric' })} · ${cur.coord.lat.toFixed(2)}°, ${cur.coord.lon.toFixed(2)}°`;
   animateNumber('currentTemp', Math.round(cur.main.temp), uSym());
   document.getElementById('currentDesc').textContent = cur.weather[0].description;
   const hiLo = document.getElementById('hiLo');
@@ -279,7 +291,7 @@ function renderAll(cur, fore, recordHistory = false) {
   hiLo.replaceChildren(high, document.createTextNode('  '), low);
   document.getElementById('mainIcon').textContent = getIcon(cur.weather[0].id, isDay);
   document.getElementById('lastUpdated').textContent =
-    `Updated ${new Date().toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit' })}`;
+    `Updated ${formatLocationTime(cur.dt, cur.timezone, { hour:'2-digit', minute:'2-digit', timeZoneName:'short' })}`;
 
   // Stats bar
   document.getElementById('sHumidity').textContent = `${cur.main.humidity}%`;
