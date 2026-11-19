@@ -25,6 +25,14 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Run test suite
+        run: npm test
+
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 
@@ -32,9 +40,11 @@ jobs:
         run: |
           mkdir -p _site
           cp -R index.html style.css app.js weather-api.js feature-utils.js sw.js manifest.webmanifest offline.html features assets _site/
+          cp .nojekyll _site/.nojekyll
           test -f _site/index.html
           test -f _site/sw.js
           test -f _site/manifest.webmanifest
+          test -f _site/.nojekyll
 
       - name: Upload static site
         uses: actions/upload-pages-artifact@v3
