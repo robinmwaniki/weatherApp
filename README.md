@@ -83,3 +83,7 @@ Notifications are opt-in and require browser permission. Skyline evaluates its e
 
 
 Recent search history records successful typed searches and selected search suggestions only. Automatic startup, quick-city shortcuts, saved-city navigation, geolocation and unit changes do not add history entries. Opt-in notifications use the same saved thresholds as the Weather Advisories panel.
+
+
+## Editorial dashboard layout
+The dashboard uses a two-column editorial composition on desktop: current conditions alongside sunrise/sunset, followed by a full-width hourly forecast, a five-day forecast with wind details, and compact supporting statistics. Secondary tools (favourites, recent searches, city comparison, advisories, preferences, sharing, install/offline support and notifications) are grouped in a separate section below the weather dashboard. The layout adapts for tablets and phones, including narrow 320px screens.
