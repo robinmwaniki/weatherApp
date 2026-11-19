@@ -51,6 +51,14 @@ function cvtSpd(speed) {
   return unit === 'metric' ? Math.round(speed * 3.6) : Math.round(speed);
 }
 
+function formatVisibility(meters) {
+  if (meters === null || meters === undefined || !Number.isFinite(Number(meters))) return '—';
+  const kilometres = Number(meters) / 1000;
+  return unit === 'imperial'
+    ? `${(kilometres / 1.609344).toFixed(1)} mi`
+    : `${kilometres.toFixed(1)} km`;
+}
+
 // ---- Dew point formula ----
 function dewPoint(tempC, hum) {
   const a = 17.62, b = 243.12;
@@ -268,7 +276,7 @@ function renderAll(cur, fore, recordHistory = false) {
   document.getElementById('sHumidity').textContent = `${cur.main.humidity}%`;
   document.getElementById('sWind').textContent     = `${cvtSpd(cur.wind.speed)} ${spdUnit()}`;
   document.getElementById('sFeels').textContent    = `${Math.round(cur.main.feels_like)}${uSym()}`;
-  document.getElementById('sVis').textContent      = `${(cur.visibility / 1000).toFixed(1)} km`;
+  document.getElementById('sVis').textContent      = formatVisibility(cur.visibility);
   document.getElementById('sPress').textContent    = `${cur.main.pressure} hPa`;
   document.getElementById('sCloud').textContent    = `${cur.clouds.all}%`;
 
