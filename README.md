@@ -60,3 +60,7 @@ Skyline keeps up to eight recently viewed cities in browser localStorage. Select
 
 ## City comparison
 Compare the current dashboard city with another city using the existing OpenWeatherMap current-weather endpoint and configured key. The comparison request does not replace the primary dashboard location.
+
+
+## Weather advisories
+Skyline can display app-generated advisories for thunderstorms, likely rain, strong winds and temperature extremes using the current weather and forecast responses. Thresholds are configurable in the dashboard and saved locally. These are informational estimates, not official alerts or emergency warnings.
