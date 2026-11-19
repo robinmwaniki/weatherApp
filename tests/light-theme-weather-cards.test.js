@@ -33,5 +33,5 @@ test('all new weather surface overrides are scoped to light mode', () => {
   const section = css.slice(css.lastIndexOf('/* ===== LIGHT THEME: FINAL WEATHER DASHBOARD SURFACES ====='));
   assert.ok(section.length > 0);
   assert.match(section, /body\.theme-light/);
-  assert.doesNotMatch(section, /\.weather-content > \.card\s*\{[^}]*background:\s*#ffffff/s);
+  assert.doesNotMatch(section, /(^|\n)\s*\.weather-content > \.card\s*\{/);
 });
