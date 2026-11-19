@@ -1424,3 +1424,30 @@ body.theme-light .weather-content .gauge-val {
 body.theme-light .weather-content .last-updated {
   color: #607589;
 }
+
+
+/* ===== ENVIRONMENTAL INSIGHTS ===== */
+.environment-summary{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin:14px 0 18px}
+.environment-aqi{display:flex;align-items:center;gap:14px}
+.environment-aqi-value{display:grid;place-items:center;width:82px;height:82px;border-radius:22px;background:rgba(45,190,135,.13);border:1px solid rgba(45,190,135,.3);font:700 27px var(--font-head);color:#36c58d}
+.environment-aqi-copy strong{display:block;font:600 16px var(--font-head);color:var(--text)}
+.environment-aqi-copy span,.environment-updated{font-size:11px;color:var(--text-muted)}
+.environment-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:14px 0}
+.environment-metric{min-width:0;padding:16px;border:1px solid var(--card-border);border-radius:14px;background:rgba(255,255,255,.035)}
+.environment-metric .metric-label{font-size:11px;color:var(--text-muted)}
+.environment-metric strong{display:block;margin-top:8px;font:600 23px var(--font-head);color:var(--text)}
+.environment-metric small{font-size:10px;color:var(--text-dim)}
+.environment-advice{padding:13px 15px;border-radius:12px;background:var(--accent-glow);border:1px solid var(--card-border);font-size:12px;line-height:1.6;color:var(--text)}
+.environment-section-title{margin:20px 0 10px;font:600 13px var(--font-head);color:var(--text)}
+.environment-rain-list{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:8px}
+.environment-rain-item{display:grid;gap:7px;min-width:0;text-align:center;font-size:10px;color:var(--text-muted)}
+.environment-rain-track{height:66px;display:flex;align-items:flex-end;justify-content:center;padding:4px;background:rgba(128,150,170,.10);border-radius:8px}
+.environment-rain-bar{width:100%;max-width:24px;min-height:3px;border-radius:5px 5px 2px 2px;background:linear-gradient(180deg,#41b7e8,#1685bd)}
+.environment-rain-item strong{font-size:11px;color:var(--text)}
+.environment-status{margin:8px 0;font-size:11px;color:var(--text-muted)}
+body.theme-light .environment-metric{background:#f3f7fa;border-color:rgba(40,67,91,.12)}
+body.theme-light .environment-metric .metric-label,body.theme-light .environment-metric small,body.theme-light .environment-status,body.theme-light .environment-updated,body.theme-light .environment-rain-item{color:#607589}
+body.theme-light .environment-metric strong,body.theme-light .environment-aqi-copy strong,body.theme-light .environment-rain-item strong{color:#172a3a}
+body.theme-light .environment-advice{background:#edf6fb;border-color:rgba(8,126,174,.18);color:#20384c}
+@media(max-width:620px){.environment-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.environment-rain-list{grid-template-columns:repeat(6,minmax(0,1fr))}}
+@media(max-width:420px){.environment-rain-list{grid-template-columns:repeat(4,minmax(0,1fr))}.environment-aqi-value{width:68px;height:68px}}

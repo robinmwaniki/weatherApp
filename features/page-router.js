@@ -4,6 +4,7 @@
     current: { title: 'Current weather', description: 'Current conditions and local atmospheric details.' },
     hourly: { title: 'Hourly forecast', description: 'Explore the upcoming hours.' },
     forecast: { title: '5-day forecast', description: 'Plan ahead with the five-day outlook.' },
+    environment: { title: 'Environmental insights', description: 'Understand air quality, UV exposure and the chance of rain.' },
     saved: { title: 'Saved places', description: 'Your favourite cities, ready to revisit.' },
     history: { title: 'Recent searches', description: 'Cities you have checked recently.' },
     compare: { title: 'Compare cities', description: 'Compare current weather across locations.' },
@@ -16,6 +17,7 @@
   const panelRoutes = [
     ['saved', /saved places/i], ['history', /recent searches/i],
     ['compare', /compare cities/i], ['alerts', /weather advisories/i],
+    ['environment', /environmental insights/i],
     ['share', /share weather/i], ['notifications', /weather notifications/i],
     ['install', /install skyline/i], ['settings', /preferences/i]
   ];
