@@ -3,9 +3,6 @@
 //  app.js — Main application logic
 // =============================================
 
-const API_KEY = 'bd5e378503939ddaee76f12ad7a97608';
-const BASE    = 'https://api.openweathermap.org/data/2.5';
-
 let unit        = (window.SkylinePreferences && window.SkylinePreferences.unit) || 'metric';
 let currentLat  = null;
 let currentLon  = null;
@@ -50,7 +47,7 @@ function windDir(deg) {
 function uSym()  { return unit === 'metric' ? '°C' : '°F'; }
 function spdUnit(){ return unit === 'metric' ? 'km/h' : 'mph'; }
 function cvtSpd(speed) {
-  // OpenWeatherMap already returns mph for imperial requests and m/s for metric requests.
+  // Open-Meteo returns m/s for metric requests and mph for imperial requests.
   return unit === 'metric' ? Math.round(speed * 3.6) : Math.round(speed);
 }
 
@@ -110,10 +107,9 @@ function setupSearch() {
 
 async function loadSuggestions(q) {
   try {
-    const r = await fetch(`https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(q)}&limit=5&appid=${API_KEY}`);
-    const data = await r.json();
+    const data = await apiFetch(window.SkylineWeatherApi.buildGeocodingUrl(q, 5));
     if (document.getElementById('searchInput').value.trim() !== q) return;
-    showSuggestions(data);
+    showSuggestions(window.SkylineWeatherApi.normalizeGeocodingResults(data));
   } catch {
     if (document.getElementById('searchInput').value.trim() === q) closeSuggestions();
   }
@@ -170,21 +166,11 @@ async function fetchWeather(city, recordHistory = false) {
   const requestId = weatherRequestGate.next();
   showLoading();
   try {
-    const [currentResult, forecastResult] = await Promise.allSettled([
-      apiFetch(`${BASE}/weather?q=${encodeURIComponent(city)}&appid=${API_KEY}&units=${unit}`),
-      apiFetch(`${BASE}/forecast?q=${encodeURIComponent(city)}&appid=${API_KEY}&units=${unit}&cnt=40`)
-    ]);
+    const geocoded = await apiFetch(window.SkylineWeatherApi.buildGeocodingUrl(city, 1));
     if (!weatherRequestGate.isLatest(requestId)) return;
-    if (currentResult.status === 'rejected') throw currentResult.reason;
-    const cur = currentResult.value;
-    if (!window.SkylineWeatherApi.isCurrentWeatherPayload(cur)) throw new Error('The weather service returned incomplete current-weather data. Please try again.');
-    const forecastAvailable = forecastResult.status === 'fulfilled';
-    const fore = forecastAvailable ? { list: window.SkylineWeatherApi.forecastList(forecastResult.value) } : { list: [] };
-    currentLat = cur.coord.lat;
-    currentLon = cur.coord.lon;
-    currentData = { cur, fore };
-    renderAll(cur, fore, recordHistory);
-    if (!forecastAvailable) document.getElementById('lastUpdated').textContent += ' · Forecast temporarily unavailable';
+    const [location] = window.SkylineWeatherApi.normalizeGeocodingResults(geocoded);
+    if (!location) throw new Error('City or location was not found. Check the spelling and try again.');
+    fetchWeatherByCoords(location.lat, location.lon, location.name, location.country, recordHistory);
   } catch (error) {
     if (!weatherRequestGate.isLatest(requestId)) return;
     showError(error.message || 'Unable to retrieve weather. Please try again.');
@@ -198,23 +184,21 @@ async function fetchWeatherByCoords(lat, lon, name, country, recordHistory = fal
   const requestId = weatherRequestGate.next();
   showLoading();
   try {
-    const [currentResult, forecastResult] = await Promise.allSettled([
-      apiFetch(`${BASE}/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=${unit}`),
-      apiFetch(`${BASE}/forecast?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=${unit}&cnt=40`)
-    ]);
+    const payload = await apiFetch(window.SkylineWeatherApi.buildForecastUrl(lat, lon, unit));
     if (!weatherRequestGate.isLatest(requestId)) return;
-    if (currentResult.status === 'rejected') throw currentResult.reason;
-    const cur = currentResult.value;
-    if (!window.SkylineWeatherApi.isCurrentWeatherPayload(cur)) throw new Error('The weather service returned incomplete current-weather data. Please try again.');
-    const forecastAvailable = forecastResult.status === 'fulfilled';
-    const fore = forecastAvailable ? { list: window.SkylineWeatherApi.forecastList(forecastResult.value) } : { list: [] };
+    const normalized = window.SkylineWeatherApi.normalizeWeatherResponse(
+      payload,
+      { name: name || 'Your location', country: country || '', lat, lon },
+      unit
+    );
+    const { cur, fore } = normalized;
+    if (!window.SkylineWeatherApi.isCurrentWeatherPayload(cur)) {
+      throw new Error('The weather service returned incomplete current-weather data. Please try again.');
+    }
     currentLat = lat;
     currentLon = lon;
     currentData = { cur, fore };
-    if (name) cur.name = name;
-    if (country) cur.sys.country = country;
     renderAll(cur, fore, recordHistory);
-    if (!forecastAvailable) document.getElementById('lastUpdated').textContent += ' · Forecast temporarily unavailable';
   } catch (error) {
     if (!weatherRequestGate.isLatest(requestId)) return;
     showError(error.message || 'Could not retrieve weather for this location.');
@@ -226,7 +210,11 @@ async function apiFetch(url) {
 }
 
 window.loadComparisonWeather = async function(city, units) {
-  return apiFetch(`${BASE}/weather?q=${encodeURIComponent(city)}&appid=${API_KEY}&units=${units}`);
+  const geocoded = await apiFetch(window.SkylineWeatherApi.buildGeocodingUrl(city, 1));
+  const [location] = window.SkylineWeatherApi.normalizeGeocodingResults(geocoded);
+  if (!location) throw new Error('City or location was not found. Check the spelling and try again.');
+  const payload = await apiFetch(window.SkylineWeatherApi.buildForecastUrl(location.lat, location.lon, units));
+  return window.SkylineWeatherApi.normalizeWeatherResponse(payload, location, units).cur;
 };
 
 // ============================
@@ -241,7 +229,7 @@ function setUnit(u) {
   document.getElementById('btnC').classList.toggle('active', nextUnit === 'metric');
   document.getElementById('btnF').classList.toggle('active', nextUnit === 'imperial');
 
-  // OpenWeatherMap returns different temperature values for each units parameter.
+  // The provider returns temperature and wind values in the requested units.
   // Refresh by coordinates so a unit-only change keeps the exact selected location.
   // recordHistory=false prevents a unit toggle from creating a duplicate recent search.
   if (unitChanged && currentData && Number.isFinite(currentLat) && Number.isFinite(currentLon)) {
@@ -261,7 +249,7 @@ function renderAll(cur, fore, recordHistory = false) {
   // Main card
   document.getElementById('cityName').textContent = cur.name;
   document.getElementById('cityMeta').textContent =
-    `${cur.sys.country} · ${new Date().toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' })} · ${cur.coord.lat.toFixed(2)}°, ${cur.coord.lon.toFixed(2)}°`;
+    `${cur.sys.country ? cur.sys.country + ' · ' : ''}${new Date().toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' })} · ${cur.coord.lat.toFixed(2)}°, ${cur.coord.lon.toFixed(2)}°`;
   animateNumber('currentTemp', Math.round(cur.main.temp), uSym());
   document.getElementById('currentDesc').textContent = cur.weather[0].description;
   const hiLo = document.getElementById('hiLo');
@@ -295,10 +283,10 @@ function renderAll(cur, fore, recordHistory = false) {
 
   // Map
   document.getElementById('mapCoords').textContent = `${cur.coord.lat.toFixed(4)}°, ${cur.coord.lon.toFixed(4)}°`;
-  document.getElementById('mapCity').textContent   = `${cur.name}, ${cur.sys.country}`;
+  document.getElementById('mapCity').textContent   = [cur.name, cur.sys.country].filter(Boolean).join(', ');
 
   // Sun arc
-  renderSunArc(cur.sys.sunrise, cur.sys.sunset, cur.dt);
+  renderSunArc(cur.sys.sunrise, cur.sys.sunset, cur.dt, cur.sys.sunriseLabel, cur.sys.sunsetLabel);
 
   // Hourly
   renderHourly(fore.list);
@@ -345,7 +333,7 @@ function animateNumber(id, target, suffix = '') {
 // ============================
 //  SUN ARC CANVAS
 // ============================
-function renderSunArc(sunrise, sunset, now) {
+function renderSunArc(sunrise, sunset, now, sunriseLabel, sunsetLabel) {
   const canvas = document.getElementById('sunArc');
   const ctx = canvas.getContext('2d');
   const W = canvas.width, H = canvas.height;
@@ -408,8 +396,8 @@ function renderSunArc(sunrise, sunset, now) {
 
   // Labels
   const fmt = ts => new Date(ts * 1000).toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit' });
-  document.getElementById('sunriseTime').textContent = `🌅 ${fmt(sunrise)}`;
-  document.getElementById('sunsetTime').textContent  = `🌇 ${fmt(sunset)}`;
+  document.getElementById('sunriseTime').textContent = `🌅 ${sunriseLabel || fmt(sunrise)}`;
+  document.getElementById('sunsetTime').textContent  = `🌇 ${sunsetLabel || fmt(sunset)}`;
 
   const pct = Math.round(progress * 100);
   document.getElementById('sunNow').textContent =
@@ -433,7 +421,7 @@ function renderHourly(list) {
 
     const time = document.createElement('div');
     time.className = 'hour-time' + (isNow ? ' now-label' : '');
-    time.textContent = isNow ? 'Now' : d.toLocaleTimeString('en-US', { hour:'numeric', hour12:true });
+    time.textContent = isNow ? 'Now' : (item.localTime || d.toLocaleTimeString('en-US', { hour:'numeric', hour12:true }));
 
     const icon = document.createElement('div');
     icon.className = 'hour-icon';
@@ -460,8 +448,8 @@ function renderForecast(list) {
   // Group by day
   const days = {};
   list.forEach(item => {
-    const key = new Date(item.dt * 1000).toDateString();
-    if (!days[key]) days[key] = { items: [], temps: [], icons: [], pops: [], descs: [], date: new Date(item.dt * 1000) };
+    const key = item.localDate || new Date(item.dt * 1000).toDateString();
+    if (!days[key]) days[key] = { items: [], temps: [], icons: [], pops: [], descs: [], date: item.localDate ? new Date(item.localDate + 'T12:00:00') : new Date(item.dt * 1000) };
     days[key].items.push(item);
     days[key].temps.push(item.main.temp);
     days[key].icons.push(item.weather[0].id);
