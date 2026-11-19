@@ -419,23 +419,32 @@ function renderSunArc(sunrise, sunset, now) {
 // ============================
 function renderHourly(list) {
   const container = document.getElementById('hourlyScroll');
-  container.innerHTML = '';
-  const now = Date.now() / 1000;
+  container.replaceChildren();
 
   list.slice(0, 16).forEach((item, i) => {
     const d = new Date(item.dt * 1000);
     const isNow = i === 0;
     const div = document.createElement('div');
     div.className = 'hour-item' + (isNow ? ' now' : '');
-    const timeLabel = isNow ? 'Now' : d.toLocaleTimeString('en-US', { hour:'numeric', hour12:true });
-    const rain = item.pop ? `💧${Math.round(item.pop * 100)}%` : '';
-    div.innerHTML = `
-      <div class="hour-time ${isNow ? 'now-label' : ''}">${timeLabel}</div>
-      <div class="hour-icon">${getIcon(item.weather[0].id)}</div>
-      <div class="hour-temp">${Math.round(item.main.temp)}${uSym()}</div>
-      <div class="hour-rain">${rain}</div>
-    `;
+
+    const time = document.createElement('div');
+    time.className = 'hour-time' + (isNow ? ' now-label' : '');
+    time.textContent = isNow ? 'Now' : d.toLocaleTimeString('en-US', { hour:'numeric', hour12:true });
+
+    const icon = document.createElement('div');
+    icon.className = 'hour-icon';
+    icon.textContent = getIcon(item.weather[0].id);
+
+    const temperature = document.createElement('div');
+    temperature.className = 'hour-temp';
+    temperature.textContent = `${Math.round(item.main.temp)}${uSym()}`;
+
+    const rain = document.createElement('div');
+    rain.className = 'hour-rain';
+    rain.textContent = item.pop ? `💧${Math.round(item.pop * 100)}%` : '';
+
     div.title = `${item.weather[0].description} · Humidity: ${item.main.humidity}%`;
+    div.append(time, icon, temperature, rain);
     container.appendChild(div);
   });
 }
