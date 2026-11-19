@@ -143,6 +143,7 @@
     const cur = {
       name: String((location && location.name) || 'Your location'),
       dt: currentTime,
+      timezone: String(payload.timezone || ''),
       coord: {
         lat: Number((location && location.lat) ?? payload.latitude),
         lon: Number((location && location.lon) ?? payload.longitude)
