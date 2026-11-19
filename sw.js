@@ -5,7 +5,7 @@ const CORE_ASSETS = [
   './features/favourites.js', './features/recent-history.js',
   './features/city-comparison.js', './features/weather-alerts.js',
   './features/settings.js', './features/share-report.js',
-  './features/pwa.js', './manifest.webmanifest', './offline.html',
+  './features/pwa.js', './features/notifications.js', './manifest.webmanifest', './offline.html',
   './assets/icon-192.svg', './assets/icon-512.svg'
 ];
 self.addEventListener('install', event => {
@@ -42,3 +42,5 @@ self.addEventListener('fetch', event => {
   if (!CORE_ASSETS.some(path => new URL(path, self.registration.scope).href === request.url)) return;
   event.respondWith((async () => (await caches.match(request)) || fetch(request))());
 });
+
+self.addEventListener('notificationclick', event => { event.notification.close(); event.waitUntil((async () => { const windows = await self.clients.matchAll({ type: 'window', includeUncontrolled: true }); for (const client of windows) { if ('focus' in client) return client.focus(); } if (self.clients.openWindow) return self.clients.openWindow('./'); })()); });

@@ -76,3 +76,7 @@ Use Share report to open the device's native share sheet when supported. Otherwi
 
 ## Install and offline support (PWA)
 Skyline can be installed on supported browsers over HTTPS or localhost. The service worker caches the app shell and static assets after the first successful load. Weather API requests are never cached, so fresh conditions require a network connection. Offline mode can reopen the cached interface and show an offline fallback when navigation cannot be served. On iOS, use Share → Add to Home Screen.
+
+
+## Weather notifications
+Notifications are opt-in and require browser permission. Skyline evaluates its existing rule-based advisories only when weather data is loaded or refreshed while the app is open; it does not poll in the background or guarantee delivery when closed. Duplicate alert sets are suppressed locally. You can disable notifications by revoking the browser permission or clearing the app's site data.
