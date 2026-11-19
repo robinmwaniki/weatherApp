@@ -93,8 +93,8 @@
     const params = {
       latitude,
       longitude,
-      current: 'temperature_2m,relative_humidity_2m,apparent_temperature,is_day,weather_code,cloud_cover,pressure_msl,surface_pressure,visibility,wind_speed_10m,wind_direction_10m,wind_gusts_10m',
-      hourly: 'temperature_2m,relative_humidity_2m,precipitation_probability,weather_code',
+      current: 'temperature_2m,relative_humidity_2m,apparent_temperature,is_day,weather_code,cloud_cover,pressure_msl,surface_pressure,wind_speed_10m,wind_direction_10m,wind_gusts_10m',
+      hourly: 'temperature_2m,relative_humidity_2m,precipitation_probability,weather_code,visibility',
       daily: 'weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,precipitation_probability_max',
       temperature_unit: imperial ? 'fahrenheit' : 'celsius',
       wind_speed_unit: imperial ? 'mph' : 'ms',
@@ -126,6 +126,7 @@
     }
 
     const currentCondition = weatherCondition(current.weather_code);
+    const currentHourIndex = Math.max(0, hourly.time.findIndex(time => time === current.time));
     const currentTime = toTimestamp(current.time);
     const sunrise = toTimestamp(daily.sunrise[0]);
     const sunset = toTimestamp(daily.sunset[0]);
@@ -163,7 +164,7 @@
         deg: Number(current.wind_direction_10m ?? 0)
       },
       clouds: { all: Number(current.cloud_cover ?? 0) },
-      visibility: Number(current.visibility ?? 0),
+      visibility: Number((hourly.visibility && hourly.visibility[currentHourIndex]) ?? 0),
       weather: [currentCondition],
       is_day: Number(current.is_day ?? 1)
     };
