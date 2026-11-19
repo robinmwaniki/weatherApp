@@ -46,3 +46,29 @@ Create an API key through [OpenWeatherMap](https://openweathermap.org/api) and u
 ## License
 
 No license file is currently documented in this repository.
+
+## Saved cities
+Use the Save city control to keep frequently checked locations in this browser. Saved cities are stored locally and can be removed. Storage is device/browser-specific.
+
+## Development tests
+Run dependency-free unit tests with Node.js 18 or newer: `node --test`.
+
+
+## Recent searches
+Skyline keeps up to eight recently viewed cities in browser localStorage. Select a city to view it again or clear the history. History is local to the current browser and device.
+
+
+## City comparison
+Compare the current dashboard city with another city using the existing OpenWeatherMap current-weather endpoint and configured key. The comparison request does not replace the primary dashboard location.
+
+
+## Weather advisories
+Skyline can display app-generated advisories for thunderstorms, likely rain, strong winds and temperature extremes using the current weather and forecast responses. Thresholds are configurable in the dashboard and saved locally. These are informational estimates, not official alerts or emergency warnings.
+
+
+## Preferences and themes
+The Preferences panel lets you choose metric/imperial units, dark/light appearance and a default startup city. Settings are stored in browser localStorage and are not synchronized across devices. The app still uses the same OpenWeatherMap connection.
+
+
+## Share weather reports
+Use Share report to open the device's native share sheet when supported. Otherwise Skyline copies the report to the clipboard. Copy report is always available when browser clipboard permissions allow it. Reports include city, temperature, conditions, humidity, wind and the current timestamp.

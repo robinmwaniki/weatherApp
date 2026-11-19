@@ -6,7 +6,7 @@
 const API_KEY = 'bd5e378503939ddaee76f12ad7a97608';
 const BASE    = 'https://api.openweathermap.org/data/2.5';
 
-let unit        = 'metric';
+let unit        = (window.SkylinePreferences && window.SkylinePreferences.unit) || 'metric';
 let currentLat  = null;
 let currentLon  = null;
 let currentData = null;
@@ -67,7 +67,8 @@ window.addEventListener('DOMContentLoaded', () => {
   buildParticles();
   startBgCanvas();
   setupSearch();
-  fetchWeather('Nairobi');
+  setUnit(unit);
+  fetchWeather((window.SkylinePreferences && window.SkylinePreferences.defaultCity) || 'Nairobi');
 });
 
 // ============================
@@ -198,11 +199,20 @@ async function apiFetch(url) {
   return r.json();
 }
 
+window.loadComparisonWeather = async function(city, units) {
+  const response = await fetch(`${BASE}/weather?q=${encodeURIComponent(city)}&appid=${API_KEY}&units=${units}`);
+  const data = await response.json();
+  if (!response.ok || data.cod !== 200) throw new Error(data.message || 'City not found.');
+  return data;
+};
+
 // ============================
 //  UNIT TOGGLE
 // ============================
 function setUnit(u) {
   unit = u;
+  if (window.SkylinePreferences) window.SkylinePreferences.unit = u;
+  try { localStorage.setItem('skyline:settings', JSON.stringify(Object.assign({}, window.SkylinePreferences || {}, { unit: u }))); } catch {}
   document.getElementById('btnC').classList.toggle('active', u === 'metric');
   document.getElementById('btnF').classList.toggle('active', u === 'imperial');
   if (currentData) renderAll(currentData.cur, currentData.fore);
@@ -274,6 +284,7 @@ function renderAll(cur, fore) {
 
   // Background theme
   updateBgTheme(cur.weather[0].id, isDay);
+  window.dispatchEvent(new CustomEvent('skyline:weather-updated', { detail: { cur, fore, unit } }));
 }
 
 // ============================
