@@ -17,7 +17,7 @@ Skyline is a browser-based weather dashboard for checking current weather condit
 - HTML5
 - CSS3
 - Vanilla JavaScript
-- OpenWeatherMap Current Weather and Geocoding APIs
+- Open-Meteo Forecast API and Geocoding API (no API key required for non-commercial use)
 
 ## Run locally
 
@@ -26,8 +26,7 @@ Skyline is a browser-based weather dashboard for checking current weather condit
    git clone https://github.com/robinmwaniki/weatherApp.git
    cd weatherApp
    ```
-2. Configure your own OpenWeatherMap API key in `app.js`. Do not commit API keys or other credentials to a public repository.
-3. Open `index.html` in a browser. If your browser restricts local features, serve the folder with a local HTTP server:
+2. Open `index.html` in a browser. If your browser restricts local features, serve the folder with a local HTTP server:
    ```bash
    python -m http.server 8000
    ```
@@ -39,9 +38,11 @@ Skyline is a browser-based weather dashboard for checking current weather condit
 - `style.css` — layout, responsive styling, and visual effects.
 - `app.js` — city search, geolocation, API requests, unit conversion, and weather rendering.
 
-## API
+## Weather data provider
 
-Create an API key through [OpenWeatherMap](https://openweathermap.org/api) and use it locally. Keep credentials out of source control; a browser-only application cannot securely hide a key embedded in client-side JavaScript.
+Skyline uses the [Open-Meteo Forecast API](https://open-meteo.com/en/docs) for current conditions and forecasts and the [Open-Meteo Geocoding API](https://open-meteo.com/en/docs/geocoding-api) for city search and autocomplete. The public API requires no API key for non-commercial use, so the static GitHub Pages deployment does not need a secret or build-time credential. The free non-commercial tier currently allows up to 10,000 API calls per day. Commercial use or higher volumes require an appropriate subscription. Weather data is provided under CC BY 4.0; location data is based on GeoNames. Attribution is displayed in the app footer.
+
+Open-Meteo API terms and quotas can change. Review the [Open-Meteo terms](https://open-meteo.com/en/terms) before using this project commercially or at higher request volumes.
 
 ## License
 
@@ -59,7 +60,7 @@ Skyline keeps up to eight recently viewed cities in browser localStorage. Select
 
 
 ## City comparison
-Compare the current dashboard city with another city using the existing OpenWeatherMap current-weather endpoint and configured key. The comparison request does not replace the primary dashboard location.
+Compare the current dashboard city with another city using the Open-Meteo forecast endpoint. No API key is required. The comparison request does not replace the primary dashboard location.
 
 
 ## Weather advisories
@@ -67,7 +68,7 @@ Skyline can display app-generated advisories for thunderstorms, likely rain, str
 
 
 ## Preferences and themes
-The Preferences panel lets you choose metric/imperial units, dark/light appearance and a default startup city. Settings are stored in browser localStorage and are not synchronized across devices. The app still uses the same OpenWeatherMap connection.
+The Preferences panel lets you choose metric/imperial units, dark/light appearance and a default startup city. Settings are stored in browser localStorage and are not synchronized across devices. Weather requests are made directly to Open-Meteo without a client-side credential.
 
 
 ## Share weather reports
@@ -86,4 +87,4 @@ Recent search history records successful typed searches and selected search sugg
 
 
 ## Weather data troubleshooting
-The app validates OpenWeatherMap HTTP and API response errors, reports invalid keys/rate limits/network failures clearly, and keeps current conditions visible when only the forecast endpoint fails. The browser must be online for fresh data. If the app reports an invalid API key, verify the key is active in the OpenWeatherMap account and enabled for the Current Weather and 5 Day Forecast endpoints.
+The app validates Open-Meteo HTTP and API response errors and reports service, rate-limit and network failures clearly. The browser must be online for fresh data. If weather requests fail, check your connection and the provider status/usage limits.
