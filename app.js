@@ -260,8 +260,14 @@ function renderAll(cur, fore, recordHistory = false) {
     `${cur.sys.country} · ${new Date().toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' })} · ${cur.coord.lat.toFixed(2)}°, ${cur.coord.lon.toFixed(2)}°`;
   animateNumber('currentTemp', Math.round(cur.main.temp), uSym());
   document.getElementById('currentDesc').textContent = cur.weather[0].description;
-  document.getElementById('hiLo').innerHTML =
-    `<span class="hi">↑ ${Math.round(cur.main.temp_max)}${uSym()}</span>  <span class="lo">↓ ${Math.round(cur.main.temp_min)}${uSym()}</span>`;
+  const hiLo = document.getElementById('hiLo');
+  const high = document.createElement('span');
+  high.className = 'hi';
+  high.textContent = `↑ ${Math.round(cur.main.temp_max)}${uSym()}`;
+  const low = document.createElement('span');
+  low.className = 'lo';
+  low.textContent = `↓ ${Math.round(cur.main.temp_min)}${uSym()}`;
+  hiLo.replaceChildren(high, document.createTextNode('  '), low);
   document.getElementById('mainIcon').textContent = getIcon(cur.weather[0].id, isDay);
   document.getElementById('lastUpdated').textContent =
     `Updated ${new Date().toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit' })}`;
