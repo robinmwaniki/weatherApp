@@ -28,10 +28,18 @@ jobs:
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 
+      - name: Prepare static site artifact
+        run: |
+          mkdir -p _site
+          cp -R index.html style.css app.js weather-api.js feature-utils.js sw.js manifest.webmanifest offline.html features assets _site/
+          test -f _site/index.html
+          test -f _site/sw.js
+          test -f _site/manifest.webmanifest
+
       - name: Upload static site
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: _site
 
       - name: Deploy site
         id: deployment
