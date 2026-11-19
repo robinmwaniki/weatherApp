@@ -198,6 +198,13 @@ async function apiFetch(url) {
   return r.json();
 }
 
+window.loadComparisonWeather = async function(city, units) {
+  const response = await fetch(`${BASE}/weather?q=${encodeURIComponent(city)}&appid=${API_KEY}&units=${units}`);
+  const data = await response.json();
+  if (!response.ok || data.cod !== 200) throw new Error(data.message || 'City not found.');
+  return data;
+};
+
 // ============================
 //  UNIT TOGGLE
 // ============================
