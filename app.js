@@ -49,8 +49,9 @@ function windDir(deg) {
 
 function uSym()  { return unit === 'metric' ? '°C' : '°F'; }
 function spdUnit(){ return unit === 'metric' ? 'km/h' : 'mph'; }
-function cvtSpd(ms) {
-  return unit === 'metric' ? Math.round(ms * 3.6) : Math.round(ms * 2.237);
+function cvtSpd(speed) {
+  // OpenWeatherMap already returns mph for imperial requests and m/s for metric requests.
+  return unit === 'metric' ? Math.round(speed * 3.6) : Math.round(speed);
 }
 
 // ---- Dew point formula ----
@@ -225,12 +226,20 @@ window.loadComparisonWeather = async function(city, units) {
 //  UNIT TOGGLE
 // ============================
 function setUnit(u) {
-  unit = u;
-  if (window.SkylinePreferences) window.SkylinePreferences.unit = u;
-  try { localStorage.setItem('skyline:settings', JSON.stringify(Object.assign({}, window.SkylinePreferences || {}, { unit: u }))); } catch {}
-  document.getElementById('btnC').classList.toggle('active', u === 'metric');
-  document.getElementById('btnF').classList.toggle('active', u === 'imperial');
-  if (currentData) renderAll(currentData.cur, currentData.fore);
+  const nextUnit = u === 'imperial' ? 'imperial' : 'metric';
+  const unitChanged = unit !== nextUnit;
+  unit = nextUnit;
+  if (window.SkylinePreferences) window.SkylinePreferences.unit = nextUnit;
+  try { localStorage.setItem('skyline:settings', JSON.stringify(Object.assign({}, window.SkylinePreferences || {}, { unit: nextUnit }))); } catch {}
+  document.getElementById('btnC').classList.toggle('active', nextUnit === 'metric');
+  document.getElementById('btnF').classList.toggle('active', nextUnit === 'imperial');
+
+  // OpenWeatherMap returns different temperature values for each units parameter.
+  // Refresh by coordinates so a unit-only change keeps the exact selected location.
+  // recordHistory=false prevents a unit toggle from creating a duplicate recent search.
+  if (unitChanged && currentData && Number.isFinite(currentLat) && Number.isFinite(currentLon)) {
+    fetchWeatherByCoords(currentLat, currentLon, currentData.cur.name, currentData.cur.sys.country, false);
+  }
 }
 
 // ============================
