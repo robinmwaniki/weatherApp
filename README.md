@@ -68,3 +68,7 @@ Skyline can display app-generated advisories for thunderstorms, likely rain, str
 
 ## Preferences and themes
 The Preferences panel lets you choose metric/imperial units, dark/light appearance and a default startup city. Settings are stored in browser localStorage and are not synchronized across devices. The app still uses the same OpenWeatherMap connection.
+
+
+## Share weather reports
+Use Share report to open the device's native share sheet when supported. Otherwise Skyline copies the report to the clipboard. Copy report is always available when browser clipboard permissions allow it. Reports include city, temperature, conditions, humidity, wind and the current timestamp.
