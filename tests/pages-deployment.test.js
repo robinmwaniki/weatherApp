@@ -63,6 +63,6 @@ test('Pages deployment runs the test suite before artifact upload', () => {
 
 test('Pages artifact includes the .nojekyll marker', () => {
   const workflow = read('.github/workflows/deploy-pages.yml');
-  assert.match(workflow, /cp\\s+\.nojekyll\\s+_site\\/\.nojekyll/);
-  assert.match(workflow, /test\\s+-f\\s+_site\\/\.nojekyll/);
+  assert.ok(workflow.includes('cp .nojekyll _site/.nojekyll'));
+  assert.ok(workflow.includes('test -f _site/.nojekyll'));
 });
