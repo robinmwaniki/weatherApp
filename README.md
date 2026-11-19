@@ -72,3 +72,7 @@ The Preferences panel lets you choose metric/imperial units, dark/light appearan
 
 ## Share weather reports
 Use Share report to open the device's native share sheet when supported. Otherwise Skyline copies the report to the clipboard. Copy report is always available when browser clipboard permissions allow it. Reports include city, temperature, conditions, humidity, wind and the current timestamp.
+
+
+## Install and offline support (PWA)
+Skyline can be installed on supported browsers over HTTPS or localhost. The service worker caches the app shell and static assets after the first successful load. Weather API requests are never cached, so fresh conditions require a network connection. Offline mode can reopen the cached interface and show an offline fallback when navigation cannot be served. On iOS, use Share → Add to Home Screen.
