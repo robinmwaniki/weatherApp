@@ -1451,3 +1451,6 @@ body.theme-light .environment-metric strong,body.theme-light .environment-aqi-co
 body.theme-light .environment-advice{background:#edf6fb;border-color:rgba(8,126,174,.18);color:#20384c}
 @media(max-width:620px){.environment-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.environment-rain-list{grid-template-columns:repeat(6,minmax(0,1fr))}}
 @media(max-width:420px){.environment-rain-list{grid-template-columns:repeat(4,minmax(0,1fr))}.environment-aqi-value{width:68px;height:68px}}
+
+.environment-rain-amount{font-size:9px;color:var(--text-dim);white-space:nowrap}
+body.theme-light .environment-rain-amount{color:#607589}
