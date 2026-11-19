@@ -286,7 +286,7 @@ function renderAll(cur, fore, recordHistory = false) {
   document.getElementById('mapCity').textContent   = [cur.name, cur.sys.country].filter(Boolean).join(', ');
 
   // Sun arc
-  renderSunArc(cur.sys.sunrise, cur.sys.sunset, cur.dt);
+  renderSunArc(cur.sys.sunrise, cur.sys.sunset, cur.dt, cur.sys.sunriseLabel, cur.sys.sunsetLabel);
 
   // Hourly
   renderHourly(fore.list);
@@ -333,7 +333,7 @@ function animateNumber(id, target, suffix = '') {
 // ============================
 //  SUN ARC CANVAS
 // ============================
-function renderSunArc(sunrise, sunset, now) {
+function renderSunArc(sunrise, sunset, now, sunriseLabel, sunsetLabel) {
   const canvas = document.getElementById('sunArc');
   const ctx = canvas.getContext('2d');
   const W = canvas.width, H = canvas.height;
@@ -396,8 +396,8 @@ function renderSunArc(sunrise, sunset, now) {
 
   // Labels
   const fmt = ts => new Date(ts * 1000).toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit' });
-  document.getElementById('sunriseTime').textContent = `🌅 ${fmt(sunrise)}`;
-  document.getElementById('sunsetTime').textContent  = `🌇 ${fmt(sunset)}`;
+  document.getElementById('sunriseTime').textContent = `🌅 ${sunriseLabel || fmt(sunrise)}`;
+  document.getElementById('sunsetTime').textContent  = `🌇 ${sunsetLabel || fmt(sunset)}`;
 
   const pct = Math.round(progress * 100);
   document.getElementById('sunNow').textContent =
