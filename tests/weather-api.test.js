@@ -70,7 +70,8 @@ test('normalizes Open-Meteo geocoding records for autocomplete and search', () =
   assert.deepEqual(locations, [{
     name: 'Nairobi',
     state: 'Nairobi County',
-    country: 'KE',
+    country: 'Kenya',
+    countryCode: 'KE',
     lat: -1.2864,
     lon: 36.8172,
     timezone: 'Africa/Nairobi'
@@ -101,7 +102,7 @@ test('maps WMO weather codes into the dashboard condition categories', () => {
 
 test('normalizes current, hourly and daily data into the dashboard model', () => {
   const normalized = normalizeWeatherResponse(sample, {
-    name: 'Nairobi', country: 'KE', lat: -1.2864, lon: 36.8172
+    name: 'Nairobi', country: 'Kenya', countryCode: 'KE', lat: -1.2864, lon: 36.8172
   }, 'metric');
   assert.equal(normalized.cur.name, 'Nairobi');
   assert.equal(normalized.cur.main.temp, 24.5);
