@@ -80,7 +80,8 @@
       .map(item => ({
         name: String(item.name || 'Unknown location'),
         state: String(item.admin1 || ''),
-        country: String(item.country_code || item.country || ''),
+        country: String(item.country || item.country_code || ''),
+        countryCode: String(item.country_code || ''),
         lat: Number(item.latitude),
         lon: Number(item.longitude),
         timezone: String(item.timezone || '')
