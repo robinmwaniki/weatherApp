@@ -16,6 +16,7 @@ const {
 const sample = {
   latitude: -1.2864,
   longitude: 36.8172,
+  timezone: 'Africa/Nairobi',
   current: {
     time: '2026-11-19T12:00+03:00',
     temperature_2m: 24.5,
@@ -105,6 +106,7 @@ test('normalizes current, hourly and daily data into the dashboard model', () =>
     name: 'Nairobi', country: 'Kenya', countryCode: 'KE', lat: -1.2864, lon: 36.8172
   }, 'metric');
   assert.equal(normalized.cur.name, 'Nairobi');
+  assert.equal(normalized.cur.timezone, 'Africa/Nairobi');
   assert.equal(normalized.cur.main.temp, 24.5);
   assert.equal(normalized.cur.main.temp_max, 27);
   assert.equal(normalized.cur.main.temp_min, 18);
