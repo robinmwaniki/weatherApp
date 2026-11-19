@@ -111,8 +111,11 @@ async function loadSuggestions(q) {
   try {
     const r = await fetch(`https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(q)}&limit=5&appid=${API_KEY}`);
     const data = await r.json();
+    if (document.getElementById('searchInput').value.trim() !== q) return;
     showSuggestions(data);
-  } catch { closeSuggestions(); }
+  } catch {
+    if (document.getElementById('searchInput').value.trim() === q) closeSuggestions();
+  }
 }
 
 function showSuggestions(list) {
