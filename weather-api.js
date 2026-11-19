@@ -121,7 +121,6 @@
     const hourly = payload && payload.hourly;
     const daily = payload && payload.daily;
     if (!current || !hourly || !Array.isArray(hourly.time) || !daily ||
-        !Array.isArray(daily.sunrise) || !Array.isArray(daily.sunset) ||
         !Number.isFinite(Number(current.temperature_2m))) {
       throw new Error('The weather service returned incomplete weather data. Please try again.');
     }
@@ -129,11 +128,17 @@
     const currentCondition = weatherCondition(current.weather_code);
     const currentHourIndex = Math.max(0, hourly.time.findIndex(time => time === current.time));
     const currentTime = toTimestamp(current.time);
-    const sunrise = toTimestamp(daily.sunrise[0]);
-    const sunset = toTimestamp(daily.sunset[0]);
-    if (!currentTime || !sunrise || !sunset) {
-      throw new Error('The weather service returned invalid local time data. Please try again.');
+    const sunriseValue = Array.isArray(daily.sunrise) ? daily.sunrise[0] : null;
+    const sunsetValue = Array.isArray(daily.sunset) ? daily.sunset[0] : null;
+    const sunrise = toTimestamp(sunriseValue);
+    const sunset = toTimestamp(sunsetValue);
+    if (!currentTime) {
+      throw new Error('The weather service returned an invalid current observation time. Please try again.');
     }
+    const visibilityValue = hourly.visibility && hourly.visibility[currentHourIndex];
+    const visibility = visibilityValue === null || visibilityValue === undefined || !Number.isFinite(Number(visibilityValue))
+      ? null
+      : Number(visibilityValue);
 
     const cur = {
       name: String((location && location.name) || 'Your location'),
@@ -146,8 +151,8 @@
         country: String((location && location.country) || ''),
         sunrise,
         sunset,
-        sunriseLabel: String(daily.sunrise[0]).slice(11, 16),
-        sunsetLabel: String(daily.sunset[0]).slice(11, 16)
+        sunriseLabel: sunriseValue ? String(sunriseValue).slice(11, 16) : '',
+        sunsetLabel: sunsetValue ? String(sunsetValue).slice(11, 16) : ''
       },
       main: {
         temp: Number(current.temperature_2m),
@@ -165,7 +170,7 @@
         deg: Number(current.wind_direction_10m ?? 0)
       },
       clouds: { all: Number(current.cloud_cover ?? 0) },
-      visibility: Number((hourly.visibility && hourly.visibility[currentHourIndex]) ?? 0),
+      visibility,
       weather: [currentCondition],
       is_day: Number(current.is_day ?? 1)
     };
