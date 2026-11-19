@@ -10,6 +10,7 @@ let unit        = (window.SkylinePreferences && window.SkylinePreferences.unit) 
 let currentLat  = null;
 let currentLon  = null;
 let currentData = null;
+const weatherRequestGate = window.SkylineWeatherApi.createRequestGate();
 
 // ---- Quick cities config ----
 const QUICK_CITIES = [
@@ -158,19 +159,27 @@ function getMyLocation() {
 //  FETCH (by name)
 // ============================
 async function fetchWeather(city, recordHistory = false) {
+  const requestId = weatherRequestGate.next();
   showLoading();
   try {
-    const [cur, fore] = await Promise.all([
+    const [currentResult, forecastResult] = await Promise.allSettled([
       apiFetch(`${BASE}/weather?q=${encodeURIComponent(city)}&appid=${API_KEY}&units=${unit}`),
       apiFetch(`${BASE}/forecast?q=${encodeURIComponent(city)}&appid=${API_KEY}&units=${unit}&cnt=40`)
     ]);
-    if (cur.cod !== 200) { showError(`"${city}" not found. Try a different spelling.`); return; }
+    if (!weatherRequestGate.isLatest(requestId)) return;
+    if (currentResult.status === 'rejected') throw currentResult.reason;
+    const cur = currentResult.value;
+    if (!window.SkylineWeatherApi.isCurrentWeatherPayload(cur)) throw new Error('The weather service returned incomplete current-weather data. Please try again.');
+    const forecastAvailable = forecastResult.status === 'fulfilled';
+    const fore = forecastAvailable ? { list: window.SkylineWeatherApi.forecastList(forecastResult.value) } : { list: [] };
     currentLat = cur.coord.lat;
     currentLon = cur.coord.lon;
     currentData = { cur, fore };
     renderAll(cur, fore, recordHistory);
-  } catch {
-    showError('Network error. Check your connection.');
+    if (!forecastAvailable) document.getElementById('lastUpdated').textContent += ' · Forecast temporarily unavailable';
+  } catch (error) {
+    if (!weatherRequestGate.isLatest(requestId)) return;
+    showError(error.message || 'Unable to retrieve weather. Please try again.');
   }
 }
 
@@ -178,32 +187,38 @@ async function fetchWeather(city, recordHistory = false) {
 //  FETCH (by coords)
 // ============================
 async function fetchWeatherByCoords(lat, lon, name, country, recordHistory = false) {
+  const requestId = weatherRequestGate.next();
   showLoading();
   try {
-    const [cur, fore] = await Promise.all([
+    const [currentResult, forecastResult] = await Promise.allSettled([
       apiFetch(`${BASE}/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=${unit}`),
       apiFetch(`${BASE}/forecast?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=${unit}&cnt=40`)
     ]);
-    currentLat = lat; currentLon = lon;
+    if (!weatherRequestGate.isLatest(requestId)) return;
+    if (currentResult.status === 'rejected') throw currentResult.reason;
+    const cur = currentResult.value;
+    if (!window.SkylineWeatherApi.isCurrentWeatherPayload(cur)) throw new Error('The weather service returned incomplete current-weather data. Please try again.');
+    const forecastAvailable = forecastResult.status === 'fulfilled';
+    const fore = forecastAvailable ? { list: window.SkylineWeatherApi.forecastList(forecastResult.value) } : { list: [] };
+    currentLat = lat;
+    currentLon = lon;
     currentData = { cur, fore };
-    if (name)    cur.name = name;
+    if (name) cur.name = name;
     if (country) cur.sys.country = country;
     renderAll(cur, fore, recordHistory);
-  } catch {
-    showError('Could not retrieve weather for this location.');
+    if (!forecastAvailable) document.getElementById('lastUpdated').textContent += ' · Forecast temporarily unavailable';
+  } catch (error) {
+    if (!weatherRequestGate.isLatest(requestId)) return;
+    showError(error.message || 'Could not retrieve weather for this location.');
   }
 }
 
 async function apiFetch(url) {
-  const r = await fetch(url);
-  return r.json();
+  return window.SkylineWeatherApi.requestJson(url);
 }
 
 window.loadComparisonWeather = async function(city, units) {
-  const response = await fetch(`${BASE}/weather?q=${encodeURIComponent(city)}&appid=${API_KEY}&units=${units}`);
-  const data = await response.json();
-  if (!response.ok || data.cod !== 200) throw new Error(data.message || 'City not found.');
-  return data;
+  return apiFetch(`${BASE}/weather?q=${encodeURIComponent(city)}&appid=${API_KEY}&units=${units}`);
 };
 
 // ============================

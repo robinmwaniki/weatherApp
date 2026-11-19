@@ -1,0 +1,10 @@
+const test=require('node:test');
+const assert=require('node:assert/strict');
+const {requestJson,apiMessage,isCurrentWeatherPayload,forecastList,createRequestGate}=require('../weather-api.js');
+const valid={main:{temp:22},sys:{country:'KE'},coord:{lat:-1.2,lon:36.8},wind:{speed:2},clouds:{all:10},weather:[{id:800}]};
+test('returns JSON for a successful weather response',async()=>{const value=await requestJson('/weather',async()=>({ok:true,status:200,json:async()=>valid}));assert.equal(value.main.temp,22)});
+test('explains invalid API keys and rate limits',()=>{assert.match(apiMessage({cod:401,message:'Invalid API key'},401),/API key/i);assert.match(apiMessage({cod:429},429),/rate limit/i)});
+test('rejects unsuccessful HTTP and OpenWeatherMap responses',async()=>{await assert.rejects(()=>requestJson('/weather',async()=>({ok:false,status:401,json:async()=>({cod:401,message:'Invalid API key'})})),/API key/i);await assert.rejects(()=>requestJson('/weather',async()=>({ok:true,status:200,json:async()=>({cod:'404',message:'city not found'})})),/not found/i)});
+test('reports network and invalid JSON failures clearly',async()=>{await assert.rejects(()=>requestJson('/weather',async()=>{throw new Error('offline')}),/internet connection/i);await assert.rejects(()=>requestJson('/weather',async()=>({ok:true,status:200,json:async()=>{throw new Error('bad json')}})),/unreadable response/i)});
+test('validates current weather payloads and safely defaults missing forecasts',()=>{assert.equal(isCurrentWeatherPayload(valid),true);assert.equal(isCurrentWeatherPayload({cod:200}),false);assert.deepEqual(forecastList({list:[1]}),[1]);assert.deepEqual(forecastList({}),[])});
+test('request gate ignores older asynchronous responses',()=>{const gate=createRequestGate();const first=gate.next();const second=gate.next();assert.equal(gate.isLatest(first),false);assert.equal(gate.isLatest(second),true)});

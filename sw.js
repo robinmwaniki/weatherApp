@@ -1,7 +1,7 @@
 importScripts('./feature-utils.js');
-const CACHE_NAME = 'skyline-shell-v1';
+const CACHE_NAME = 'skyline-shell-v2';
 const CORE_ASSETS = [
-  './', './index.html', './style.css', './app.js', './feature-utils.js',
+  './', './index.html', './style.css', './app.js', './weather-api.js', './feature-utils.js',
   './features/favourites.js', './features/recent-history.js',
   './features/city-comparison.js', './features/weather-alerts.js',
   './features/settings.js', './features/share-report.js',
