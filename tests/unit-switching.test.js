@@ -161,3 +161,22 @@ test('daylight icon falls back to provider is_day when sun times are missing', (
   assert.equal(context.isDaylight({ dt: 100, sys: { sunrise: 0, sunset: 0 }, is_day: 0 }), false);
   assert.equal(context.isDaylight({ dt: 100, sys: { sunrise: 50, sunset: 150 }, is_day: 0 }), true);
 });
+
+
+test('dashboard timestamps use the selected city's timezone', () => {
+  const { context } = createAppContext();
+  const timestamp = Date.parse('2026-11-19T00:00:00Z') / 1000;
+  assert.equal(context.formatLocationTime(timestamp, 'Asia/Tokyo', {
+    hour: '2-digit', minute: '2-digit', hour12: false
+  }), '09:00');
+  assert.equal(context.formatLocationTime(timestamp, 'Africa/Nairobi', {
+    hour: '2-digit', minute: '2-digit', hour12: false
+  }), '03:00');
+});
+
+test('invalid or missing city timezones safely fall back to browser-local time', () => {
+  const { context } = createAppContext();
+  const timestamp = Date.parse('2026-11-19T00:00:00Z') / 1000;
+  assert.ok(context.formatLocationTime(timestamp, 'Not/A_Real_Zone', { hour: '2-digit' }));
+  assert.ok(context.formatLocationTime(timestamp, '', { weekday: 'long' }));
+});
