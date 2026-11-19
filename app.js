@@ -338,7 +338,7 @@ function renderAll(cur, fore, recordHistory = false) {
 
   // Background theme
   updateBgTheme(cur.weather[0].id, isDay);
-  window.dispatchEvent(new CustomEvent('skyline:weather-updated', { detail: { cur, fore, unit, recordHistory } }));
+  window.dispatchEvent(new CustomEvent('skyline:weather-updated', { detail: { cur, fore, environment: fore.environment || null, unit, recordHistory } }));
 }
 
 // ============================
