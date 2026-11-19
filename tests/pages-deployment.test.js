@@ -48,3 +48,21 @@ test('all service-worker precache entries exist in the repository', () => {
     assert.ok(fs.existsSync(path.join(root, asset.replace(/^\.\//, ''))), `Missing precache asset: ${asset}`);
   }
 });
+
+
+test('Pages deployment runs the test suite before artifact upload', () => {
+  const workflow = read('.github/workflows/deploy-pages.yml');
+  const testStep = workflow.indexOf('run: npm test');
+  const uploadStep = workflow.indexOf('uses: actions/upload-pages-artifact@v3');
+  const deployStep = workflow.indexOf('uses: actions/deploy-pages@v4');
+
+  assert.notEqual(testStep, -1, 'Deployment workflow must run npm test');
+  assert.ok(testStep < uploadStep, 'Tests must pass before the artifact is uploaded');
+  assert.ok(uploadStep < deployStep, 'Artifact upload must happen before deployment');
+});
+
+test('Pages artifact includes the .nojekyll marker', () => {
+  const workflow = read('.github/workflows/deploy-pages.yml');
+  assert.match(workflow, /cp\\s+\.nojekyll\\s+_site\\/\.nojekyll/);
+  assert.match(workflow, /test\\s+-f\\s+_site\\/\.nojekyll/);
+});
