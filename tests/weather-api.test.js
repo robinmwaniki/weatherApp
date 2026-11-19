@@ -169,3 +169,31 @@ test('request gate ignores older asynchronous responses', () => {
   assert.equal(gate.isLatest(first), false);
   assert.equal(gate.isLatest(second), true);
 });
+
+
+test('keeps current weather when sunrise and sunset are unavailable', () => {
+  const polarSample = structuredClone(sample);
+  polarSample.daily.sunrise = [null];
+  polarSample.daily.sunset = [null];
+  polarSample.hourly.visibility = [null, null];
+  const normalized = normalizeWeatherResponse(polarSample, {
+    name: 'Tromsø', country: 'Norway', lat: 69.6492, lon: 18.9553
+  }, 'metric');
+  assert.equal(normalized.cur.sys.sunrise, 0);
+  assert.equal(normalized.cur.sys.sunset, 0);
+  assert.equal(normalized.cur.sys.sunriseLabel, '');
+  assert.equal(normalized.cur.sys.sunsetLabel, '');
+  assert.equal(normalized.cur.visibility, null);
+  assert.equal(normalized.cur.main.temp, 24.5);
+});
+
+test('accepts missing sunrise and sunset arrays when daily forecast data exists', () => {
+  const polarSample = structuredClone(sample);
+  delete polarSample.daily.sunrise;
+  delete polarSample.daily.sunset;
+  const normalized = normalizeWeatherResponse(polarSample, {
+    name: 'Polar location', country: '', lat: 78, lon: 15
+  }, 'metric');
+  assert.equal(normalized.cur.sys.sunrise, 0);
+  assert.equal(normalized.cur.sys.sunset, 0);
+});
