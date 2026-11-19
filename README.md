@@ -52,3 +52,7 @@ Use the Save city control to keep frequently checked locations in this browser. 
 
 ## Development tests
 Run dependency-free unit tests with Node.js 18 or newer: `node --test`.
+
+
+## Recent searches
+Skyline keeps up to eight recently viewed cities in browser localStorage. Select a city to view it again or clear the history. History is local to the current browser and device.
