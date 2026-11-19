@@ -31,7 +31,7 @@ test('PWA manifest and service worker use a project-relative scope', () => {
 
   assert.equal(manifest.start_url, './');
   assert.equal(manifest.scope, './');
-  assert.match(pwa, /register\('\.\/sw\.js',\s*\{scope:'\.\/'\}\)/);
+  assert.match(pwa, /register\('\.\/sw\.js',\s*\{\s*scope:\s*'\.\/'\s*\}\)/);
   assert.match(worker, /new URL\(path, self\.registration\.scope\)/);
   assert.match(worker, /isSameOriginAsset\(request\.url, self\.location\.origin\)/);
 });
