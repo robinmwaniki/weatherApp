@@ -2,6 +2,20 @@
 
 Skyline is a browser-based weather dashboard for checking current weather conditions in cities around the world. It uses the keyless Open-Meteo Forecast and Geocoding APIs with a responsive HTML, CSS, and JavaScript interface.
 
+[**Open the live Skyline Weather App**](https://robinmwaniki.github.io/weatherApp/)
+
+## Visual showcase
+
+The following original illustrations give an overview of the interface and feature areas. They are conceptual visuals for documentation, not live browser screenshots; displayed weather values are examples.
+
+### Weather dashboard
+
+![Skyline dashboard visual concept](assets/readme-dashboard-concept.svg)
+
+### Environmental insights
+
+![Skyline environmental insights visual concept](assets/readme-environment-concept.svg)
+
 ## Features
 
 - Search for a city and view its current weather.
@@ -49,42 +63,43 @@ Open-Meteo API terms and quotas can change. Review the [Open-Meteo terms](https:
 No license file is currently documented in this repository.
 
 ## Saved cities
+
 Use the Save city control to keep frequently checked locations in this browser. Saved cities are stored locally and can be removed. Storage is device/browser-specific.
 
 ## Development tests
+
 Run dependency-free unit tests with Node.js 18 or newer: `node --test`.
 
-
 ## Recent searches
+
 Skyline keeps up to eight recently viewed cities in browser localStorage. Select a city to view it again or clear the history. History is local to the current browser and device.
 
-
 ## City comparison
+
 Compare the current dashboard city with another city using the Open-Meteo forecast endpoint. No API key is required. The comparison request does not replace the primary dashboard location.
 
-
 ## Weather advisories
+
 Skyline can display app-generated advisories for thunderstorms, likely rain, strong winds and temperature extremes using the current weather and forecast responses. Thresholds are configurable in the dashboard and saved locally. These are informational estimates, not official alerts or emergency warnings.
 
-
 ## Preferences and themes
+
 The Preferences panel lets you choose metric/imperial units, dark/light appearance and a default startup city. Settings are stored in browser localStorage and are not synchronized across devices. Weather requests are made directly to Open-Meteo without a client-side credential.
 
-
 ## Share weather reports
+
 Use Share report to open the device's native share sheet when supported. Otherwise Skyline copies the report to the clipboard. Copy report is always available when browser clipboard permissions allow it. Reports include city, temperature, conditions, humidity, wind and the current timestamp.
 
-
 ## Install and offline support (PWA)
+
 Skyline can be installed on supported browsers over HTTPS or localhost. The service worker caches the app shell and static assets after the first successful load. Weather API requests are never cached, so fresh conditions require a network connection. Offline mode can reopen the cached interface and show an offline fallback when navigation cannot be served. On iOS, use Share → Add to Home Screen.
 
-
 ## Weather notifications
-Notifications are opt-in and require browser permission. Skyline evaluates its existing rule-based advisories only when weather data is loaded or refreshed while the app is open; it does not poll in the background or guarantee delivery when closed. Duplicate alert sets are suppressed locally. You can disable notifications by revoking the browser permission or clearing the app's site data.
 
+Notifications are opt-in and require browser permission. Skyline evaluates its existing rule-based advisories only when weather data is loaded or refreshed while the app is open; it does not poll in the background or guarantee delivery when closed. Duplicate alert sets are suppressed locally. You can disable notifications by revoking the browser permission or clearing the app's site data.
 
 Recent search history records successful typed searches and selected search suggestions only. Automatic startup, quick-city shortcuts, saved-city navigation, geolocation and unit changes do not add history entries. Opt-in notifications use the same saved thresholds as the Weather Advisories panel.
 
-
 ## Weather data troubleshooting
+
 The app validates Open-Meteo HTTP and API response errors and reports service, rate-limit and network failures clearly. The browser must be online for fresh data. If weather requests fail, check your connection and the provider status/usage limits.
