@@ -1,11 +1,11 @@
 # Skyline — Global Weather App
 
-Skyline is a browser-based weather dashboard for checking current weather conditions in cities around the world. It uses the OpenWeatherMap API and a responsive HTML, CSS, and JavaScript interface.
+Skyline is a browser-based weather dashboard for checking current weather conditions in cities around the world. It uses the keyless Open-Meteo Forecast and Geocoding APIs with a responsive HTML, CSS, and JavaScript interface.
 
 ## Features
 
 - Search for a city and view its current weather.
-- Search suggestions powered by OpenWeatherMap geocoding.
+- Search suggestions powered by Open-Meteo Geocoding (GeoNames location data).
 - Quick access to popular cities, including Nairobi, London, Tokyo, and New York.
 - Use browser geolocation to request weather for the current location.
 - Switch between metric (°C, km/h) and imperial (°F, mph) units.
