@@ -76,7 +76,7 @@
   function normalizeGeocodingResults(payload) {
     if (!payload || !Array.isArray(payload.results)) return [];
     return payload.results
-      .filter(item => item && Number.isFinite(Number(item.latitude)) && Number.isFinite(Number(item.longitude)))
+      .filter(item => item && item.latitude !== null && item.latitude !== undefined && item.longitude !== null && item.longitude !== undefined && Number.isFinite(Number(item.latitude)) && Number.isFinite(Number(item.longitude)))
       .map(item => ({
         name: String(item.name || 'Unknown location'),
         state: String(item.admin1 || ''),
@@ -121,7 +121,7 @@
     const hourly = payload && payload.hourly;
     const daily = payload && payload.daily;
     if (!current || !hourly || !Array.isArray(hourly.time) || !daily ||
-        !Number.isFinite(Number(current.temperature_2m))) {
+        current.temperature_2m === null || current.temperature_2m === undefined || !Number.isFinite(Number(current.temperature_2m))) {
       throw new Error('The weather service returned incomplete weather data. Please try again.');
     }
 
