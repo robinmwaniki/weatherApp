@@ -20,6 +20,6 @@ test('README documents the keyless provider and attribution', () => {
   const readme = fs.readFileSync(path.join(root, 'README.md'), 'utf8');
   assert.match(readme, /Open-Meteo Forecast API/i);
   assert.match(readme, /Open-Meteo Geocoding API/i);
-  assert.match(readme, /CC BY 4\\.0/i);
+  assert.ok(readme.includes('CC BY 4.0'));
   assert.match(readme, /GeoNames/i);
 });
