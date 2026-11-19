@@ -6,7 +6,7 @@
 const API_KEY = 'bd5e378503939ddaee76f12ad7a97608';
 const BASE    = 'https://api.openweathermap.org/data/2.5';
 
-let unit        = 'metric';
+let unit        = (window.SkylinePreferences && window.SkylinePreferences.unit) || 'metric';
 let currentLat  = null;
 let currentLon  = null;
 let currentData = null;
@@ -67,7 +67,8 @@ window.addEventListener('DOMContentLoaded', () => {
   buildParticles();
   startBgCanvas();
   setupSearch();
-  fetchWeather('Nairobi');
+  setUnit(unit);
+  fetchWeather((window.SkylinePreferences && window.SkylinePreferences.defaultCity) || 'Nairobi');
 });
 
 // ============================
@@ -210,6 +211,8 @@ window.loadComparisonWeather = async function(city, units) {
 // ============================
 function setUnit(u) {
   unit = u;
+  if (window.SkylinePreferences) window.SkylinePreferences.unit = u;
+  try { localStorage.setItem('skyline:settings', JSON.stringify(Object.assign({}, window.SkylinePreferences || {}, { unit: u }))); } catch {}
   document.getElementById('btnC').classList.toggle('active', u === 'metric');
   document.getElementById('btnF').classList.toggle('active', u === 'imperial');
   if (currentData) renderAll(currentData.cur, currentData.fore);
