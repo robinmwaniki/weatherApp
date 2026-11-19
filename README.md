@@ -46,3 +46,9 @@ Create an API key through [OpenWeatherMap](https://openweathermap.org/api) and u
 ## License
 
 No license file is currently documented in this repository.
+
+## Saved cities
+Use the Save city control to keep frequently checked locations in this browser. Saved cities are stored locally and can be removed. Storage is device/browser-specific.
+
+## Development tests
+Run dependency-free unit tests with Node.js 18 or newer: `node --test`.
