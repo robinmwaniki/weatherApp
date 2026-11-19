@@ -60,6 +60,15 @@ function formatVisibility(meters) {
 }
 
 // ---- Dew point formula ----
+function isDaylight(cur) {
+  const sunrise = Number(cur && cur.sys && cur.sys.sunrise);
+  const sunset = Number(cur && cur.sys && cur.sys.sunset);
+  if (Number.isFinite(sunrise) && sunrise > 0 && Number.isFinite(sunset) && sunset > sunrise) {
+    return cur.dt > sunrise && cur.dt < sunset;
+  }
+  return Number(cur && cur.is_day) === 1;
+}
+
 function dewPoint(tempC, hum) {
   const a = 17.62, b = 243.12;
   const gamma = (a * tempC / (b + tempC)) + Math.log(hum / 100);
@@ -251,7 +260,7 @@ function setUnit(u) {
 function renderAll(cur, fore, recordHistory = false) {
   hideLoading();
 
-  const isDay = cur.dt > cur.sys.sunrise && cur.dt < cur.sys.sunset;
+  const isDay = isDaylight(cur);
   const tempC = cur.main.temp - (unit === 'imperial' ? 32/1.8 : 0); // approx for dewpoint
 
   // Main card
@@ -350,10 +359,11 @@ function renderSunArc(sunrise, sunset, now, sunriseLabel, sunsetLabel) {
   const cx = W / 2, cy = H - 20;
   const r = W / 2 - 20;
 
-  // Total day duration
-  const total   = sunset - sunrise;
-  const elapsed = Math.max(0, Math.min(now - sunrise, total));
-  const progress = elapsed / total;
+  // Sunrise/sunset can be unavailable in polar day/night conditions.
+  const hasSunTimes = Number.isFinite(sunrise) && sunrise > 0 && Number.isFinite(sunset) && sunset > sunrise;
+  const total = hasSunTimes ? sunset - sunrise : 0;
+  const elapsed = hasSunTimes ? Math.max(0, Math.min(now - sunrise, total)) : 0;
+  const progress = hasSunTimes ? elapsed / total : 0;
 
   // Draw arc background
   ctx.beginPath();
@@ -362,37 +372,39 @@ function renderSunArc(sunrise, sunset, now, sunriseLabel, sunsetLabel) {
   ctx.lineWidth = 3;
   ctx.stroke();
 
-  // Draw progress arc
-  const startAngle = Math.PI;
-  const endAngle   = Math.PI + progress * Math.PI;
-  const grad = ctx.createLinearGradient(0, 0, W, 0);
-  grad.addColorStop(0, '#ff7043');
-  grad.addColorStop(1, '#ffd54f');
-  ctx.beginPath();
-  ctx.arc(cx, cy, r, startAngle, endAngle, false);
-  ctx.strokeStyle = grad;
-  ctx.lineWidth = 3;
-  ctx.stroke();
+  if (hasSunTimes) {
+    // Draw progress arc
+    const startAngle = Math.PI;
+    const endAngle = Math.PI + progress * Math.PI;
+    const grad = ctx.createLinearGradient(0, 0, W, 0);
+    grad.addColorStop(0, '#ff7043');
+    grad.addColorStop(1, '#ffd54f');
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, startAngle, endAngle, false);
+    ctx.strokeStyle = grad;
+    ctx.lineWidth = 3;
+    ctx.stroke();
 
-  // Draw sun position
-  const angle = Math.PI + progress * Math.PI;
-  const sx = cx + r * Math.cos(angle);
-  const sy = cy + r * Math.sin(angle);
+    // Draw sun position
+    const angle = Math.PI + progress * Math.PI;
+    const sx = cx + r * Math.cos(angle);
+    const sy = cy + r * Math.sin(angle);
 
-  // Glow
-  const grd = ctx.createRadialGradient(sx, sy, 0, sx, sy, 16);
-  grd.addColorStop(0, 'rgba(255,213,79,0.6)');
-  grd.addColorStop(1, 'rgba(255,213,79,0)');
-  ctx.beginPath();
-  ctx.arc(sx, sy, 16, 0, Math.PI * 2);
-  ctx.fillStyle = grd;
-  ctx.fill();
+    // Glow
+    const grd = ctx.createRadialGradient(sx, sy, 0, sx, sy, 16);
+    grd.addColorStop(0, 'rgba(255,213,79,0.6)');
+    grd.addColorStop(1, 'rgba(255,213,79,0)');
+    ctx.beginPath();
+    ctx.arc(sx, sy, 16, 0, Math.PI * 2);
+    ctx.fillStyle = grd;
+    ctx.fill();
 
-  // Sun dot
-  ctx.beginPath();
-  ctx.arc(sx, sy, 6, 0, Math.PI * 2);
-  ctx.fillStyle = '#ffd54f';
-  ctx.fill();
+    // Sun dot
+    ctx.beginPath();
+    ctx.arc(sx, sy, 6, 0, Math.PI * 2);
+    ctx.fillStyle = '#ffd54f';
+    ctx.fill();
+  }
 
   // Horizon line
   ctx.beginPath();
@@ -404,14 +416,15 @@ function renderSunArc(sunrise, sunset, now, sunriseLabel, sunsetLabel) {
 
   // Labels
   const fmt = ts => new Date(ts * 1000).toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit' });
-  document.getElementById('sunriseTime').textContent = `🌅 ${sunriseLabel || fmt(sunrise)}`;
-  document.getElementById('sunsetTime').textContent  = `🌇 ${sunsetLabel || fmt(sunset)}`;
+  document.getElementById('sunriseTime').textContent = `🌅 ${sunriseLabel || (hasSunTimes ? fmt(sunrise) : '—')}`;
+  document.getElementById('sunsetTime').textContent  = `🌇 ${sunsetLabel || (hasSunTimes ? fmt(sunset) : '—')}`;
 
   const pct = Math.round(progress * 100);
-  document.getElementById('sunNow').textContent =
-    now < sunrise ? 'Before sunrise' :
-    now > sunset  ? 'After sunset' :
-    `${pct}% through the day`;
+  document.getElementById('sunNow').textContent = !hasSunTimes
+    ? 'Sun times unavailable'
+    : now < sunrise ? 'Before sunrise'
+    : now > sunset ? 'After sunset'
+    : `${pct}% through the day`;
 }
 
 // ============================
