@@ -56,14 +56,14 @@
       status.textContent=error.message||'Air quality data is temporarily unavailable.';
     }
   }
-  document.addEventListener('DOMContentLoaded',()=>{
+  if(typeof document!=='undefined')document.addEventListener('DOMContentLoaded',()=>{
     const host=el('featurePanels');if(!host)return;
     const panel=document.createElement('section');panel.className='feature-panel';
     panel.innerHTML='<div class="card-label">Environmental insights</div><p class="feature-subtitle">Air quality, sun exposure and precipitation outlook for the selected city.</p><div class="environment-summary"><div class="environment-aqi"><div class="environment-aqi-value" id="environmentAqi" aria-label="US air quality index">—</div><div class="environment-aqi-copy"><strong id="environmentCategory">Waiting for data</strong><span>US Air Quality Index</span></div></div><span class="environment-updated" id="environmentUpdated">Waiting for forecast…</span></div><div class="environment-advice" id="environmentAdvice" role="status" aria-live="polite">Load a city to see environmental guidance.</div><div class="environment-grid" id="environmentAirMetrics"></div><h2 class="environment-section-title">UV exposure</h2><div class="environment-grid"><div class="environment-metric"><div class="metric-label">Current / next hour UV</div><strong id="environmentUvNow">—</strong><small>UV index</small></div><div class="environment-metric"><div class="metric-label">Daily maximum UV</div><strong id="environmentUvMax">—</strong><small>Forecast peak</small></div></div><p class="environment-status" id="environmentUvAdvice">UV guidance will appear when forecast data loads.</p><h2 class="environment-section-title">Next 24 hours · precipitation chance</h2><div class="environment-rain-list" id="environmentRainList" aria-label="Hourly precipitation probability"></div><p class="environment-status" id="environmentStatus" role="status" aria-live="polite">Environmental data will load after the weather forecast.</p>';
     host.append(panel);
     if(latestEnvironment)renderForecast(latestEnvironment);
   });
-  window.addEventListener('skyline:weather-updated',event=>{
+  if(typeof window!=='undefined')window.addEventListener('skyline:weather-updated',event=>{
     const detail=event.detail||{};if(!detail.cur||!detail.cur.coord)return;
     latestEnvironment=detail.environment||detail.fore&&detail.fore.environment||null;
     if(el('environmentAqi')){renderForecast(latestEnvironment);loadAirQuality(detail)}
