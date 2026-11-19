@@ -116,6 +116,10 @@
     return Number.isFinite(timestamp) ? Math.floor(timestamp / 1000) : 0;
   }
 
+  function optionalNumber(value) {
+    return value !== null && value !== undefined && value !== '' && Number.isFinite(Number(value)) ? Number(value) : null;
+  }
+
   function normalizeWeatherResponse(payload, location, units = 'metric') {
     const current = payload && payload.current;
     const hourly = payload && payload.hourly;
@@ -192,9 +196,9 @@
         },
         weather: [weatherCondition(hourlyCodes[index] ?? current.weather_code)],
         pop: Number(hourlyPop[index] ?? 0) / 100,
-        uvIndex: Number.isFinite(Number(hourly.uv_index && hourly.uv_index[index])) ? Number(hourly.uv_index[index]) : null,
-        precipitation: Number.isFinite(Number(hourly.precipitation && hourly.precipitation[index])) ? Number(hourly.precipitation[index]) : null,
-        precipitationProbability: Number.isFinite(Number(hourlyPop[index])) ? Number(hourlyPop[index]) : null
+        uvIndex: optionalNumber(hourly.uv_index && hourly.uv_index[index]),
+        precipitation: optionalNumber(hourly.precipitation && hourly.precipitation[index]),
+        precipitationProbability: optionalNumber(hourlyPop[index])
       }))
       .filter(item => item.dt >= currentTime)
       .slice(0, 120);
@@ -203,8 +207,8 @@
       throw new Error('The weather service did not return hourly forecast data. Please try again.');
     }
 
-    const dailyUv = Array.isArray(daily.uv_index_max) && Number.isFinite(Number(daily.uv_index_max[0])) ? Number(daily.uv_index_max[0]) : null;
-    const dailyPrecipitation = Array.isArray(daily.precipitation_sum) && Number.isFinite(Number(daily.precipitation_sum[0])) ? Number(daily.precipitation_sum[0]) : null;
+    const dailyUv = Array.isArray(daily.uv_index_max) ? optionalNumber(daily.uv_index_max[0]) : null;
+    const dailyPrecipitation = Array.isArray(daily.precipitation_sum) ? optionalNumber(daily.precipitation_sum[0]) : null;
     const environment = {
       hourly: forecastList.map(item => ({
         time: item.time, dt: item.dt, localTime: item.localTime,
@@ -228,7 +232,7 @@
   }
 
   function airQualityCategory(aqi) {
-    if (!Number.isFinite(Number(aqi))) return { label: 'Unavailable', advice: 'Air quality data is not available for this location right now.' };
+    if (aqi === null || aqi === undefined || aqi === '' || !Number.isFinite(Number(aqi))) return { label: 'Unavailable', advice: 'Air quality data is not available for this location right now.' };
     const value = Number(aqi);
     if (value <= 50) return { label: 'Good', advice: 'Air quality is satisfactory. Normal outdoor activity is suitable.' };
     if (value <= 100) return { label: 'Moderate', advice: 'Most people can enjoy outdoor activities. Unusually sensitive people may reduce prolonged exertion.' };
@@ -249,7 +253,7 @@
     }, { index: 0, distance: Infinity }).index;
     const read = key => {
       const value = hourly[key] && hourly[key][index];
-      return value !== null && value !== undefined && Number.isFinite(Number(value)) ? Number(value) : null;
+      return value !== null && value !== undefined && value !== '' && Number.isFinite(Number(value)) ? Number(value) : null;
     };
     const aqi = read('us_aqi');
     const category = airQualityCategory(aqi);
