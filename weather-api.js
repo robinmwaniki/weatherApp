@@ -95,8 +95,8 @@
       latitude,
       longitude,
       current: 'temperature_2m,relative_humidity_2m,apparent_temperature,is_day,weather_code,cloud_cover,pressure_msl,surface_pressure,wind_speed_10m,wind_direction_10m,wind_gusts_10m',
-      hourly: 'temperature_2m,relative_humidity_2m,precipitation_probability,weather_code,visibility',
-      daily: 'weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,precipitation_probability_max',
+      hourly: 'temperature_2m,relative_humidity_2m,precipitation_probability,precipitation,uv_index,weather_code,visibility',
+      daily: 'weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,precipitation_probability_max,precipitation_sum,uv_index_max',
       temperature_unit: imperial ? 'fahrenheit' : 'celsius',
       wind_speed_unit: imperial ? 'mph' : 'ms',
       timezone: 'auto',
@@ -191,7 +191,10 @@
           humidity: Number(hourlyHumidity[index] ?? current.relative_humidity_2m ?? 0)
         },
         weather: [weatherCondition(hourlyCodes[index] ?? current.weather_code)],
-        pop: Number(hourlyPop[index] ?? 0) / 100
+        pop: Number(hourlyPop[index] ?? 0) / 100,
+        uvIndex: Number.isFinite(Number(hourly.uv_index && hourly.uv_index[index])) ? Number(hourly.uv_index[index]) : null,
+        precipitation: Number.isFinite(Number(hourly.precipitation && hourly.precipitation[index])) ? Number(hourly.precipitation[index]) : null,
+        precipitationProbability: Number.isFinite(Number(hourlyPop[index])) ? Number(hourlyPop[index]) : null
       }))
       .filter(item => item.dt >= currentTime)
       .slice(0, 120);
@@ -200,7 +203,57 @@
       throw new Error('The weather service did not return hourly forecast data. Please try again.');
     }
 
-    return { cur, fore: { list: forecastList }, units: units === 'imperial' ? 'imperial' : 'metric' };
+    const dailyUv = Array.isArray(daily.uv_index_max) && Number.isFinite(Number(daily.uv_index_max[0])) ? Number(daily.uv_index_max[0]) : null;
+    const dailyPrecipitation = Array.isArray(daily.precipitation_sum) && Number.isFinite(Number(daily.precipitation_sum[0])) ? Number(daily.precipitation_sum[0]) : null;
+    const environment = {
+      hourly: forecastList.map(item => ({
+        time: item.time, dt: item.dt, localTime: item.localTime,
+        uvIndex: item.uvIndex, precipitation: item.precipitation,
+        precipitationProbability: item.precipitationProbability
+      })).slice(0, 24),
+      dailyUvMax: dailyUv,
+      dailyPrecipitation
+    };
+    return { cur, fore: { list: forecastList, environment }, units: units === 'imperial' ? 'imperial' : 'metric' };
+  }
+
+  function buildAirQualityUrl(latitude, longitude) {
+    const url = new URL('https://air-quality-api.open-meteo.com/v1/air-quality');
+    url.searchParams.set('latitude', String(latitude));
+    url.searchParams.set('longitude', String(longitude));
+    url.searchParams.set('hourly', 'us_aqi,pm2_5,pm10');
+    url.searchParams.set('forecast_hours', '24');
+    url.searchParams.set('timezone', 'auto');
+    return url.toString();
+  }
+
+  function airQualityCategory(aqi) {
+    if (!Number.isFinite(Number(aqi))) return { label: 'Unavailable', advice: 'Air quality data is not available for this location right now.' };
+    const value = Number(aqi);
+    if (value <= 50) return { label: 'Good', advice: 'Air quality is satisfactory. Normal outdoor activity is suitable.' };
+    if (value <= 100) return { label: 'Moderate', advice: 'Most people can enjoy outdoor activities. Unusually sensitive people may reduce prolonged exertion.' };
+    if (value <= 150) return { label: 'Unhealthy for sensitive groups', advice: 'Children, older adults and people with heart or lung conditions should reduce prolonged outdoor exertion.' };
+    if (value <= 200) return { label: 'Unhealthy', advice: 'Consider reducing prolonged outdoor exertion. Sensitive groups should avoid strenuous outdoor activity.' };
+    if (value <= 300) return { label: 'Very unhealthy', advice: 'Reduce outdoor activity and consider keeping windows closed.' };
+    return { label: 'Hazardous', advice: 'Avoid outdoor exertion and follow local public-health guidance.' };
+  }
+
+  function normalizeAirQualityResponse(payload, now = Date.now()) {
+    const hourly = payload && payload.hourly;
+    if (!hourly || !Array.isArray(hourly.time) || !hourly.time.length) {
+      return { aqi: null, pm25: null, pm10: null, category: 'Unavailable', advice: 'Air quality data is not available for this location right now.', time: null };
+    }
+    const index = hourly.time.reduce((best, time, i) => {
+      const distance = Math.abs(Date.parse(time) - Number(now));
+      return Number.isFinite(distance) && distance < best.distance ? { index: i, distance } : best;
+    }, { index: 0, distance: Infinity }).index;
+    const read = key => {
+      const value = hourly[key] && hourly[key][index];
+      return value !== null && value !== undefined && Number.isFinite(Number(value)) ? Number(value) : null;
+    };
+    const aqi = read('us_aqi');
+    const category = airQualityCategory(aqi);
+    return { aqi, pm25: read('pm2_5'), pm10: read('pm10'), category: category.label, advice: category.advice, time: hourly.time[index] || null };
   }
 
   function isCurrentWeatherPayload(data) {
@@ -229,6 +282,9 @@
     buildGeocodingUrl,
     normalizeGeocodingResults,
     buildForecastUrl,
+    buildAirQualityUrl,
+    airQualityCategory,
+    normalizeAirQualityResponse,
     weatherCondition,
     normalizeWeatherResponse,
     isCurrentWeatherPayload,
