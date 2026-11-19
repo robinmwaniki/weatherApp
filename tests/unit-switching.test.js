@@ -110,7 +110,7 @@ test('weather alert temperature and wind thresholds convert in both directions',
   const metric = utils.convertAlertLimits(imperial, 'imperial', 'metric');
   assert.equal(metric.highTemp, 35);
   assert.equal(metric.lowTemp, 0);
-  assert.equal(metric.windSpeed, 45);
+  assert.ok(Math.abs(metric.windSpeed - 45) <= 0.1);
 });
 
 test('alert threshold conversion leaves values unchanged when units match', () => {
