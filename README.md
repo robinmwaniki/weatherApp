@@ -80,3 +80,6 @@ Skyline can be installed on supported browsers over HTTPS or localhost. The serv
 
 ## Weather notifications
 Notifications are opt-in and require browser permission. Skyline evaluates its existing rule-based advisories only when weather data is loaded or refreshed while the app is open; it does not poll in the background or guarantee delivery when closed. Duplicate alert sets are suppressed locally. You can disable notifications by revoking the browser permission or clearing the app's site data.
+
+
+Recent search history records successful typed searches and selected search suggestions only. Automatic startup, quick-city shortcuts, saved-city navigation, geolocation and unit changes do not add history entries. Opt-in notifications use the same saved thresholds as the Weather Advisories panel.

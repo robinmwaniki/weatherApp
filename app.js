@@ -126,7 +126,7 @@ function showSuggestions(list) {
     div.addEventListener('click', () => {
       document.getElementById('searchInput').value = item.name;
       closeSuggestions();
-      fetchWeatherByCoords(item.lat, item.lon, item.name, item.country);
+      fetchWeatherByCoords(item.lat, item.lon, item.name, item.country, true);
     });
     box.appendChild(div);
   });
@@ -139,7 +139,7 @@ function closeSuggestions() {
 
 function doSearch() {
   const q = document.getElementById('searchInput').value.trim();
-  if (q) { closeSuggestions(); fetchWeather(q); }
+  if (q) { closeSuggestions(); fetchWeather(q, true); }
 }
 
 // ============================
@@ -157,7 +157,7 @@ function getMyLocation() {
 // ============================
 //  FETCH (by name)
 // ============================
-async function fetchWeather(city) {
+async function fetchWeather(city, recordHistory = false) {
   showLoading();
   try {
     const [cur, fore] = await Promise.all([
@@ -168,7 +168,7 @@ async function fetchWeather(city) {
     currentLat = cur.coord.lat;
     currentLon = cur.coord.lon;
     currentData = { cur, fore };
-    renderAll(cur, fore);
+    renderAll(cur, fore, recordHistory);
   } catch {
     showError('Network error. Check your connection.');
   }
@@ -177,7 +177,7 @@ async function fetchWeather(city) {
 // ============================
 //  FETCH (by coords)
 // ============================
-async function fetchWeatherByCoords(lat, lon, name, country) {
+async function fetchWeatherByCoords(lat, lon, name, country, recordHistory = false) {
   showLoading();
   try {
     const [cur, fore] = await Promise.all([
@@ -188,7 +188,7 @@ async function fetchWeatherByCoords(lat, lon, name, country) {
     currentData = { cur, fore };
     if (name)    cur.name = name;
     if (country) cur.sys.country = country;
-    renderAll(cur, fore);
+    renderAll(cur, fore, recordHistory);
   } catch {
     showError('Could not retrieve weather for this location.');
   }
@@ -221,7 +221,7 @@ function setUnit(u) {
 // ============================
 //  RENDER ALL
 // ============================
-function renderAll(cur, fore) {
+function renderAll(cur, fore, recordHistory = false) {
   hideLoading();
 
   const isDay = cur.dt > cur.sys.sunrise && cur.dt < cur.sys.sunset;
@@ -284,7 +284,7 @@ function renderAll(cur, fore) {
 
   // Background theme
   updateBgTheme(cur.weather[0].id, isDay);
-  window.dispatchEvent(new CustomEvent('skyline:weather-updated', { detail: { cur, fore, unit } }));
+  window.dispatchEvent(new CustomEvent('skyline:weather-updated', { detail: { cur, fore, unit, recordHistory } }));
 }
 
 // ============================
