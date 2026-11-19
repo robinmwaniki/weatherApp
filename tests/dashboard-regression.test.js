@@ -35,3 +35,58 @@ test('preferences can be reassigned when the user saves settings', () => {
   assert.match(settings, /prefs=\{unit:/);
   assert.doesNotMatch(settings, /const prefs\s*=\s*window\.SkylineUtils\.sanitizeSettings\(saved\)/);
 });
+
+
+test('settings panel saves preferences without a runtime error', () => {
+  const documentListeners = {};
+  const windowListeners = {};
+  const elementListeners = {};
+  const stored = new Map();
+  const elements = {
+    featurePanels: { append() {} },
+    settingUnits: { value: 'metric' },
+    settingTheme: { value: 'dark' },
+    settingDefaultCity: { value: 'Nairobi' },
+    savePreferences: { addEventListener(type, callback) { elementListeners[type] = callback; } },
+    settingsFeedback: { textContent: '' }
+  };
+  const document = {
+    body: { classList: { toggle() {} } },
+    addEventListener(type, callback) { documentListeners[type] = callback; },
+    createElement() { return { className: '', innerHTML: '' }; },
+    getElementById(id) { return elements[id] || null; }
+  };
+  const window = {
+    SkylineUtils: {
+      sanitizeSettings(value) {
+        return Object.assign({ unit: 'metric', theme: 'dark', defaultCity: 'Nairobi' }, value);
+      }
+    },
+    addEventListener(type, callback) { windowListeners[type] = callback; },
+    setUnit(value) { this.lastUnit = value; }
+  };
+  const localStorage = {
+    getItem(key) { return stored.has(key) ? stored.get(key) : null; },
+    setItem(key, value) { stored.set(key, value); }
+  };
+
+  vm.runInNewContext(settings, { window, document, localStorage });
+  assert.equal(typeof documentListeners.DOMContentLoaded, 'function');
+  documentListeners.DOMContentLoaded();
+
+  elements.settingUnits.value = 'imperial';
+  elements.settingTheme.value = 'light';
+  elements.settingDefaultCity.value = 'Mombasa';
+  assert.equal(typeof elementListeners.click, 'function');
+  assert.doesNotThrow(() => elementListeners.click());
+
+  assert.deepEqual(JSON.parse(stored.get('skyline:settings')), {
+    unit: 'imperial',
+    theme: 'light',
+    defaultCity: 'Mombasa'
+  });
+  assert.equal(window.SkylinePreferences.defaultCity, 'Mombasa');
+  assert.equal(window.lastUnit, 'imperial');
+  assert.equal(elements.settingsFeedback.textContent,
+    'Preferences saved. Your default city will load next time you open Skyline.');
+});
