@@ -49,8 +49,9 @@ function windDir(deg) {
 
 function uSym()  { return unit === 'metric' ? '°C' : '°F'; }
 function spdUnit(){ return unit === 'metric' ? 'km/h' : 'mph'; }
-function cvtSpd(ms) {
-  return unit === 'metric' ? Math.round(ms * 3.6) : Math.round(ms * 2.237);
+function cvtSpd(speed) {
+  // OpenWeatherMap already returns mph for imperial requests and m/s for metric requests.
+  return unit === 'metric' ? Math.round(speed * 3.6) : Math.round(speed);
 }
 
 // ---- Dew point formula ----
