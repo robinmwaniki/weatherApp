@@ -36,7 +36,8 @@ const sample = {
     temperature_2m: [24.5, 25],
     relative_humidity_2m: [62, 60],
     precipitation_probability: [20, 45],
-    weather_code: [2, 61]
+    weather_code: [2, 61],
+    visibility: [12000, 10000]
   },
   daily: {
     temperature_2m_max: [27],
@@ -83,6 +84,8 @@ test('builds forecast requests with the selected temperature and wind units', ()
   assert.equal(metric.searchParams.get('wind_speed_unit'), 'ms');
   assert.equal(metric.searchParams.get('timezone'), 'auto');
   assert.equal(metric.searchParams.get('forecast_days'), '5');
+  assert.ok(metric.searchParams.get('hourly').includes('visibility'));
+  assert.equal(metric.searchParams.get('current').includes('visibility'), false);
 
   const imperial = new URL(buildForecastUrl(-1.2, 36.8, 'imperial'));
   assert.equal(imperial.searchParams.get('temperature_unit'), 'fahrenheit');
@@ -106,6 +109,7 @@ test('normalizes current, hourly and daily data into the dashboard model', () =>
   assert.equal(normalized.cur.main.temp_min, 18);
   assert.equal(normalized.cur.main.humidity, 62);
   assert.equal(normalized.cur.wind.speed, 3.5);
+  assert.equal(normalized.cur.visibility, 12000);
   assert.equal(normalized.cur.weather[0].id, 802);
   assert.equal(normalized.cur.sys.sunriseLabel, '06:10');
   assert.equal(normalized.fore.list.length, 2);
