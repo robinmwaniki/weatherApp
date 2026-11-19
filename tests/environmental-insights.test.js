@@ -74,6 +74,9 @@ test('keeps environmental insights on the query-string route and in the offline 
   assert.match(worker, /features\/environmental-insights\.js/);
   assert.match(moduleSource, /aria-live="polite"/);
   assert.match(moduleSource, /modelled forecast/i);
+  assert.match(moduleSource, /environment-rain-amount/);
+  assert.match(moduleSource, /item\.precipitation===null/);
+  assert.match(fs.readFileSync(path.join(root, 'style.css'), 'utf8'), /body\.theme-light \.environment-rain-amount/);
 });
 
 test('provides UV guidance for all exposure bands', () => {

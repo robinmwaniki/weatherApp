@@ -30,8 +30,10 @@
       const chance=Number.isFinite(Number(item.precipitationProbability))?Math.max(0,Math.min(100,Number(item.precipitationProbability))):0;
       bar.style.height=Math.max(4,chance*.62)+'px';bar.setAttribute('aria-hidden','true');track.append(bar);
       const percent=document.createElement('strong');percent.textContent=item.precipitationProbability===null||item.precipitationProbability===undefined?'—':Math.round(chance)+'%';
-      wrap.setAttribute('aria-label',(item.localTime||'Hour')+': '+percent.textContent+' precipitation probability');
-      wrap.append(time,track,percent);rain.append(wrap);
+      const amount=document.createElement('span');amount.className='environment-rain-amount';
+      amount.textContent=item.precipitation===null||item.precipitation===undefined?'— mm':format(item.precipitation)+' mm';
+      wrap.setAttribute('aria-label',(item.localTime||'Hour')+': '+percent.textContent+' precipitation probability, '+amount.textContent+' expected precipitation');
+      wrap.append(time,track,percent,amount);rain.append(wrap);
     });
   }
   function uvAdvice(value){
