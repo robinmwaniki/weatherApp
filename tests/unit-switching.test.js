@@ -28,6 +28,13 @@ function createAppContext(requestJson = async () => { throw new Error('mock weat
         let latest = 0;
         return { next() { return ++latest; }, isLatest(id) { return id === latest; } };
       },
+      buildForecastUrl(lat, lon, units) {
+        const url = new URL('https://api.open-meteo.com/v1/forecast');
+        url.searchParams.set('latitude', String(lat));
+        url.searchParams.set('longitude', String(lon));
+        url.searchParams.set('temperature_unit', units === 'imperial' ? 'fahrenheit' : 'celsius');
+        return url.toString();
+      },
       async requestJson(url) {
         requests.push(url);
         return requestJson(url);
@@ -83,16 +90,16 @@ test('coordinate weather requests use the currently selected API units', async (
   const { context, requests } = createAppContext();
   context.fetchWeatherByCoords(-1.2864, 36.8172, 'Nairobi', 'KE', false);
   await new Promise(resolve => setImmediate(resolve));
-  assert.equal(requests.length, 2);
-  assert.ok(requests.every(url => url.includes('units=metric')));
-  assert.ok(requests.every(url => url.includes('lat=-1.2864') && url.includes('lon=36.8172')));
+  assert.equal(requests.length, 1);
+  assert.ok(requests[0].includes('temperature_unit=celsius'));
+  assert.ok(requests[0].includes('latitude=-1.2864') && requests[0].includes('longitude=36.8172'));
 
   requests.length = 0;
   context.setUnit('imperial');
   context.fetchWeatherByCoords(-1.2864, 36.8172, 'Nairobi', 'KE', false);
   await new Promise(resolve => setImmediate(resolve));
-  assert.equal(requests.length, 2);
-  assert.ok(requests.every(url => url.includes('units=imperial')));
+  assert.equal(requests.length, 1);
+  assert.ok(requests[0].includes('temperature_unit=fahrenheit'));
 });
 
 test('weather alert temperature and wind thresholds convert in both directions', () => {
@@ -119,9 +126,9 @@ test('alert threshold conversion leaves values unchanged when units match', () =
 });
 
 
-test('wind speed formatting respects OpenWeatherMap metric and imperial response units', () => {
+test('wind speed formatting respects provider response units', () => {
   const { context } = createAppContext();
-  assert.equal(context.cvtSpd(10), 36, 'Metric API wind speed is metres per second');
+  assert.equal(context.cvtSpd(10), 36, 'Metric wind speed is returned in metres per second');
   context.setUnit('imperial');
-  assert.equal(context.cvtSpd(10), 10, 'Imperial API wind speed is already miles per hour');
+  assert.equal(context.cvtSpd(10), 10, 'Imperial wind speed is already returned in miles per hour');
 });
