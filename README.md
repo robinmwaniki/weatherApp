@@ -30,7 +30,7 @@ Skyline is a browser-based weather dashboard for checking current weather condit
    ```bash
    python -m http.server 8000
    ```
-4. Visit http://localhost:8000.
+3. Visit http://localhost:8000.
 
 ## Project files
 
