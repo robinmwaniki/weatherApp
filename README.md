@@ -56,3 +56,7 @@ Run dependency-free unit tests with Node.js 18 or newer: `node --test`.
 
 ## Recent searches
 Skyline keeps up to eight recently viewed cities in browser localStorage. Select a city to view it again or clear the history. History is local to the current browser and device.
+
+
+## City comparison
+Compare the current dashboard city with another city using the existing OpenWeatherMap current-weather endpoint and configured key. The comparison request does not replace the primary dashboard location.
