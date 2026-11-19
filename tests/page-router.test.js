@@ -16,7 +16,7 @@ test('removes provider connection status and the requested footer attribution', 
 });
 
 test('provides a distinct navigable route for each weather and utility feature', () => {
-  const pages = ['overview','current','hourly','forecast','saved','history','compare','alerts','share','notifications','install','settings'];
+  const pages = ['overview','current','hourly','forecast','environment','saved','history','compare','alerts','share','notifications','install','settings'];
   for (const page of pages) {
     assert.match(html, new RegExp('data-page-link="' + page + '"'));
     assert.match(router, new RegExp(page + ':'));
