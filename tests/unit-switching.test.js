@@ -132,3 +132,13 @@ test('wind speed formatting respects provider response units', () => {
   context.setUnit('imperial');
   assert.equal(context.cvtSpd(10), 10, 'Imperial wind speed is already returned in miles per hour');
 });
+
+
+test('visibility formatting follows the selected distance units', () => {
+  const { context } = createAppContext();
+  assert.equal(context.formatVisibility(1609.344), '1.6 km');
+  context.setUnit('imperial');
+  assert.equal(context.formatVisibility(1609.344), '1.0 mi');
+  assert.equal(context.formatVisibility(0), '0.0 mi');
+  assert.equal(context.formatVisibility(null), '—');
+});
