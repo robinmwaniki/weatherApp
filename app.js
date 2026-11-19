@@ -9,7 +9,8 @@ const BASE    = 'https://api.openweathermap.org/data/2.5';
 let unit        = (window.SkylinePreferences && window.SkylinePreferences.unit) || 'metric';
 let currentLat  = null;
 let currentLon  = null;
-let currentData = null;\nconst weatherRequestGate = window.SkylineWeatherApi.createRequestGate();
+let currentData = null;
+const weatherRequestGate = window.SkylineWeatherApi.createRequestGate();
 
 // ---- Quick cities config ----
 const QUICK_CITIES = [
