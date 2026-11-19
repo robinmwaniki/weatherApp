@@ -117,3 +117,11 @@ test('alert threshold conversion leaves values unchanged when units match', () =
   const limits = { highTemp: 30, lowTemp: 5, windSpeed: 20, rainProbability: 60 };
   assert.deepEqual(utils.convertAlertLimits(limits, 'metric', 'metric'), limits);
 });
+
+
+test('wind speed formatting respects OpenWeatherMap metric and imperial response units', () => {
+  const { context } = createAppContext();
+  assert.equal(context.cvtSpd(10), 36, 'Metric API wind speed is metres per second');
+  context.setUnit('imperial');
+  assert.equal(context.cvtSpd(10), 10, 'Imperial API wind speed is already miles per hour');
+});
