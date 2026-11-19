@@ -1203,14 +1203,14 @@ body.theme-light{--bg:#edf3f8;--bg2:#e5edf5;--card:rgba(255,255,255,.86);--card-
 
 
 /* ===== SIDEBAR + HEADER ACTIONS ===== */
-.app{width:min(100% - 2.5rem,1180px);max-width:1180px;margin-left:max(280px,calc((100vw - 1180px)/2 + 280px));margin-right:auto}
+.app{width:min(calc(100% - 320px),1180px);max-width:1180px;margin-left:max(260px,calc((100vw - 1220px)/2));margin-right:20px}
 .header{position:relative}
 .header-right{gap:10px}
 .icon-action{width:40px;height:40px;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--card-border);border-radius:13px;background:var(--card);color:var(--text);cursor:pointer;transition:var(--transition);position:relative}
 .icon-action svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .icon-action:hover:not(:disabled){border-color:var(--accent);color:var(--accent);transform:translateY(-1px)}
 .icon-action:disabled{opacity:.42;cursor:not-allowed}
-.sidebar{position:fixed;z-index:5;left:max(20px,calc((100vw - 1180px)/2));top:24px;bottom:24px;width:236px;padding:24px 16px;background:var(--card);border:1px solid var(--card-border);border-radius:22px;display:flex;flex-direction:column;gap:7px;backdrop-filter:blur(18px);box-shadow:0 18px 50px rgba(0,0,0,.12)}
+.sidebar{position:fixed;z-index:5;left:20px;top:24px;bottom:24px;width:236px;padding:24px 16px;background:var(--card);border:1px solid var(--card-border);border-radius:22px;display:flex;flex-direction:column;gap:7px;backdrop-filter:blur(18px);box-shadow:0 18px 50px rgba(0,0,0,.12)}
 .sidebar-caption{padding:8px 12px;color:var(--text-dim);font:500 10px var(--font-mono);letter-spacing:.15em}
 .sidebar-spaced{margin-top:22px}
 .sidebar-link{display:flex;align-items:center;gap:12px;width:100%;padding:12px 13px;border:1px solid transparent;border-radius:12px;background:transparent;color:var(--text-muted);font:500 13px var(--font-head);text-align:left;text-decoration:none;cursor:pointer;transition:var(--transition)}
