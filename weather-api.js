@@ -149,8 +149,8 @@
       },
       main: {
         temp: Number(current.temperature_2m),
-        temp_max: Number(daily.temperature_2m_max && daily.temperature_2m_max[0] ?? current.temperature_2m),
-        temp_min: Number(daily.temperature_2m_min && daily.temperature_2m_min[0] ?? current.temperature_2m),
+        temp_max: Number((daily.temperature_2m_max && daily.temperature_2m_max[0]) ?? current.temperature_2m),
+        temp_min: Number((daily.temperature_2m_min && daily.temperature_2m_min[0]) ?? current.temperature_2m),
         feels_like: Number(current.apparent_temperature ?? current.temperature_2m),
         humidity: Number(current.relative_humidity_2m ?? 0),
         pressure: Number(current.pressure_msl ?? current.surface_pressure ?? 0),
