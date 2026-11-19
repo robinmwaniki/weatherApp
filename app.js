@@ -112,8 +112,11 @@ async function loadSuggestions(q) {
   try {
     const r = await fetch(`https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(q)}&limit=5&appid=${API_KEY}`);
     const data = await r.json();
+    if (document.getElementById('searchInput').value.trim() !== q) return;
     showSuggestions(data);
-  } catch { closeSuggestions(); }
+  } catch {
+    if (document.getElementById('searchInput').value.trim() === q) closeSuggestions();
+  }
 }
 
 function showSuggestions(list) {
@@ -124,7 +127,11 @@ function showSuggestions(list) {
     const div = document.createElement('div');
     div.className = 'suggestion-item';
     const label = [item.name, item.state, item.country].filter(Boolean).join(', ');
-    div.innerHTML = `<span>📍</span>${label}`;
+    const pin = document.createElement('span');
+    pin.textContent = '📍';
+    const name = document.createElement('span');
+    name.textContent = label;
+    div.append(pin, name);
     div.addEventListener('click', () => {
       document.getElementById('searchInput').value = item.name;
       closeSuggestions();
@@ -257,8 +264,14 @@ function renderAll(cur, fore, recordHistory = false) {
     `${cur.sys.country} · ${new Date().toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' })} · ${cur.coord.lat.toFixed(2)}°, ${cur.coord.lon.toFixed(2)}°`;
   animateNumber('currentTemp', Math.round(cur.main.temp), uSym());
   document.getElementById('currentDesc').textContent = cur.weather[0].description;
-  document.getElementById('hiLo').innerHTML =
-    `<span class="hi">↑ ${Math.round(cur.main.temp_max)}${uSym()}</span>  <span class="lo">↓ ${Math.round(cur.main.temp_min)}${uSym()}</span>`;
+  const hiLo = document.getElementById('hiLo');
+  const high = document.createElement('span');
+  high.className = 'hi';
+  high.textContent = `↑ ${Math.round(cur.main.temp_max)}${uSym()}`;
+  const low = document.createElement('span');
+  low.className = 'lo';
+  low.textContent = `↓ ${Math.round(cur.main.temp_min)}${uSym()}`;
+  hiLo.replaceChildren(high, document.createTextNode('  '), low);
   document.getElementById('mainIcon').textContent = getIcon(cur.weather[0].id, isDay);
   document.getElementById('lastUpdated').textContent =
     `Updated ${new Date().toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit' })}`;
@@ -410,23 +423,32 @@ function renderSunArc(sunrise, sunset, now) {
 // ============================
 function renderHourly(list) {
   const container = document.getElementById('hourlyScroll');
-  container.innerHTML = '';
-  const now = Date.now() / 1000;
+  container.replaceChildren();
 
   list.slice(0, 16).forEach((item, i) => {
     const d = new Date(item.dt * 1000);
     const isNow = i === 0;
     const div = document.createElement('div');
     div.className = 'hour-item' + (isNow ? ' now' : '');
-    const timeLabel = isNow ? 'Now' : d.toLocaleTimeString('en-US', { hour:'numeric', hour12:true });
-    const rain = item.pop ? `💧${Math.round(item.pop * 100)}%` : '';
-    div.innerHTML = `
-      <div class="hour-time ${isNow ? 'now-label' : ''}">${timeLabel}</div>
-      <div class="hour-icon">${getIcon(item.weather[0].id)}</div>
-      <div class="hour-temp">${Math.round(item.main.temp)}${uSym()}</div>
-      <div class="hour-rain">${rain}</div>
-    `;
+
+    const time = document.createElement('div');
+    time.className = 'hour-time' + (isNow ? ' now-label' : '');
+    time.textContent = isNow ? 'Now' : d.toLocaleTimeString('en-US', { hour:'numeric', hour12:true });
+
+    const icon = document.createElement('div');
+    icon.className = 'hour-icon';
+    icon.textContent = getIcon(item.weather[0].id);
+
+    const temperature = document.createElement('div');
+    temperature.className = 'hour-temp';
+    temperature.textContent = `${Math.round(item.main.temp)}${uSym()}`;
+
+    const rain = document.createElement('div');
+    rain.className = 'hour-rain';
+    rain.textContent = item.pop ? `💧${Math.round(item.pop * 100)}%` : '';
+
     div.title = `${item.weather[0].description} · Humidity: ${item.main.humidity}%`;
+    div.append(time, icon, temperature, rain);
     container.appendChild(div);
   });
 }
@@ -469,17 +491,40 @@ function renderForecast(list) {
 
     const row = document.createElement('div');
     row.className = 'forecast-row';
-    row.innerHTML = `
-      <div class="fc-day-name">${name}</div>
-      <div class="fc-icon">${getIcon(iconCode)}</div>
-      <div class="fc-desc">${desc}</div>
-      <div class="fc-bar-wrap">
-        <div class="fc-lo-t">${lo}${uSym()}</div>
-        <div class="fc-bar"><div class="fc-bar-fill" style="width:${barW}%"></div></div>
-        <div class="fc-hi-t">${hi}${uSym()}</div>
-      </div>
-      ${pop ? `<div class="fc-pop">💧${pop}%</div>` : '<div class="fc-pop"></div>'}
-    `;
+
+    const dayName = document.createElement('div');
+    dayName.className = 'fc-day-name';
+    dayName.textContent = name;
+
+    const icon = document.createElement('div');
+    icon.className = 'fc-icon';
+    icon.textContent = getIcon(iconCode);
+
+    const description = document.createElement('div');
+    description.className = 'fc-desc';
+    description.textContent = desc;
+
+    const barWrap = document.createElement('div');
+    barWrap.className = 'fc-bar-wrap';
+    const low = document.createElement('div');
+    low.className = 'fc-lo-t';
+    low.textContent = `${lo}${uSym()}`;
+    const bar = document.createElement('div');
+    bar.className = 'fc-bar';
+    const fill = document.createElement('div');
+    fill.className = 'fc-bar-fill';
+    fill.style.width = `${barW}%`;
+    bar.appendChild(fill);
+    const high = document.createElement('div');
+    high.className = 'fc-hi-t';
+    high.textContent = `${hi}${uSym()}`;
+    barWrap.append(low, bar, high);
+
+    const precipitation = document.createElement('div');
+    precipitation.className = 'fc-pop';
+    precipitation.textContent = pop ? `💧${pop}%` : '';
+
+    row.append(dayName, icon, description, barWrap, precipitation);
     container.appendChild(row);
   });
 }
