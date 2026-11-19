@@ -274,6 +274,7 @@ function renderAll(cur, fore) {
 
   // Background theme
   updateBgTheme(cur.weather[0].id, isDay);
+  window.dispatchEvent(new CustomEvent('skyline:weather-updated', { detail: { cur, fore, unit } }));
 }
 
 // ============================
