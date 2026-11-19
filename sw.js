@@ -5,7 +5,7 @@ const CORE_ASSETS = [
   './features/favourites.js', './features/recent-history.js',
   './features/city-comparison.js', './features/weather-alerts.js',
   './features/settings.js', './features/share-report.js',
-  './features/pwa.js', './manifest.webmanifest', './offline.html',
+  './features/pwa.js', './features/notifications.js', './manifest.webmanifest', './offline.html',
   './assets/icon-192.svg', './assets/icon-512.svg'
 ];
 self.addEventListener('install', event => {
