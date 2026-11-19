@@ -163,7 +163,7 @@ test('daylight icon falls back to provider is_day when sun times are missing', (
 });
 
 
-test('dashboard timestamps use the selected city's timezone', () => {
+test("dashboard timestamps use the selected city's timezone", () => {
   const { context } = createAppContext();
   const timestamp = Date.parse('2026-11-19T00:00:00Z') / 1000;
   assert.equal(context.formatLocationTime(timestamp, 'Asia/Tokyo', {
