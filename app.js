@@ -487,17 +487,40 @@ function renderForecast(list) {
 
     const row = document.createElement('div');
     row.className = 'forecast-row';
-    row.innerHTML = `
-      <div class="fc-day-name">${name}</div>
-      <div class="fc-icon">${getIcon(iconCode)}</div>
-      <div class="fc-desc">${desc}</div>
-      <div class="fc-bar-wrap">
-        <div class="fc-lo-t">${lo}${uSym()}</div>
-        <div class="fc-bar"><div class="fc-bar-fill" style="width:${barW}%"></div></div>
-        <div class="fc-hi-t">${hi}${uSym()}</div>
-      </div>
-      ${pop ? `<div class="fc-pop">💧${pop}%</div>` : '<div class="fc-pop"></div>'}
-    `;
+
+    const dayName = document.createElement('div');
+    dayName.className = 'fc-day-name';
+    dayName.textContent = name;
+
+    const icon = document.createElement('div');
+    icon.className = 'fc-icon';
+    icon.textContent = getIcon(iconCode);
+
+    const description = document.createElement('div');
+    description.className = 'fc-desc';
+    description.textContent = desc;
+
+    const barWrap = document.createElement('div');
+    barWrap.className = 'fc-bar-wrap';
+    const low = document.createElement('div');
+    low.className = 'fc-lo-t';
+    low.textContent = `${lo}${uSym()}`;
+    const bar = document.createElement('div');
+    bar.className = 'fc-bar';
+    const fill = document.createElement('div');
+    fill.className = 'fc-bar-fill';
+    fill.style.width = `${barW}%`;
+    bar.appendChild(fill);
+    const high = document.createElement('div');
+    high.className = 'fc-hi-t';
+    high.textContent = `${hi}${uSym()}`;
+    barWrap.append(low, bar, high);
+
+    const precipitation = document.createElement('div');
+    precipitation.className = 'fc-pop';
+    precipitation.textContent = pop ? `💧${pop}%` : '';
+
+    row.append(dayName, icon, description, barWrap, precipitation);
     container.appendChild(row);
   });
 }
