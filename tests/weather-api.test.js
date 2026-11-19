@@ -199,3 +199,35 @@ test('accepts missing sunrise and sunset arrays when daily forecast data exists'
   assert.equal(normalized.cur.sys.sunrise, 0);
   assert.equal(normalized.cur.sys.sunset, 0);
 });
+
+
+test('discards geocoding records with null, missing or non-numeric coordinates', () => {
+  const results = normalizeGeocodingResults({
+    results: [
+      { name: 'Null latitude', latitude: null, longitude: 10 },
+      { name: 'Missing longitude', latitude: 10 },
+      { name: 'Invalid latitude', latitude: 'north', longitude: 10 },
+      { name: 'Valid zero coordinates', latitude: 0, longitude: 0 }
+    ]
+  });
+  assert.deepEqual(results.map(item => item.name), ['Valid zero coordinates']);
+  assert.equal(results[0].lat, 0);
+  assert.equal(results[0].lon, 0);
+});
+
+test('rejects null current temperatures but accepts a real zero temperature', () => {
+  const invalid = structuredClone(sample);
+  invalid.current.temperature_2m = null;
+  assert.throws(() => normalizeWeatherResponse(invalid, {
+    name: 'Nairobi', country: 'Kenya', lat: -1.2864, lon: 36.8172
+  }), /incomplete weather data/i);
+
+  const zero = structuredClone(sample);
+  zero.current.temperature_2m = 0;
+  const normalized = normalizeWeatherResponse(zero, {
+    name: 'Zero temperature', country: 'KE', lat: 0, lon: 0
+  });
+  assert.equal(normalized.cur.main.temp, 0);
+  assert.equal(normalized.cur.coord.lat, 0);
+  assert.equal(normalized.cur.coord.lon, 0);
+});
